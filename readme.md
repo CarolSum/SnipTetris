@@ -19,7 +19,7 @@ Windows SDK 10.0.16299.0
 
 先删除原有的Classes和Resources文件夹
 
-`rm -r Classes Resources`
+`rm -rf Classes/ Resources/ .git/`
 
 并且将其中的内容迁移出来根目录，形成git的仓库
 
