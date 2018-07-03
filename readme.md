@@ -23,7 +23,7 @@ Windows SDK 10.0.16299.0
 
 并且将其中的内容迁移出来根目录，形成git的仓库
 
-`mv SnipTetris/.[!.]* . && rm -r SnipTetris`
+`mv SnipTetris/{.,}[!.]* . && rm -r SnipTetris`
 
 这样就成功地将本Repo的Classes和Resources给替换进去了
 
