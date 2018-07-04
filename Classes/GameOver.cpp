@@ -44,7 +44,8 @@ DebugUI::DebugUI(Layer * scene)
 
     static const float mx = BLOCK_SIZE * MAX_COL;
 
-    static const float x = mx + (visibleSize.width - mx) * 0.5F;
+	// 向右偏移120单位
+    static const float x = mx + (visibleSize.width - mx) * 0.5F + 120;
 
     _ttfBlockPool->setPositionX(x);
 

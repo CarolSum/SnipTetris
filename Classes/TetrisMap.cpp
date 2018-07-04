@@ -70,7 +70,8 @@ bool TetrisMap::update()
 
         block->sprite->retain();
         block->sprite->removeFromParent();
-        block->sprite->setPositionX(BLOCK_SIZE * block->coord.cx + BLOCK_HALF);
+		// 右偏移120
+        block->sprite->setPositionX(BLOCK_SIZE * block->coord.cx + BLOCK_HALF + 240);
         block->sprite->setPositionY(BLOCK_SIZE * block->coord.ry + BLOCK_HALF);
         scene->addChild(block->sprite);
         block->sprite->release();
@@ -126,6 +127,7 @@ void TetrisMap::deleteLine(const int& line)
     fall(line);
 }
 
+// 删除行之后下落
 void TetrisMap::fall(const int& line)
 {
     for (int i = line-1; i >= INDEX_MIN_ROW; i--)

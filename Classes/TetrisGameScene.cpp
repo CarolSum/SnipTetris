@@ -34,6 +34,10 @@ bool TetrisGameScene::init()
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     Director::getInstance()->setClearColor(Color4F(0, 0, 0, 0));
 
+	auto titleLabel = Label::create("SnipTetris", "fonts/Fredoka.ttf", 34);
+	titleLabel->setPosition(Vec2(visibleSize.width / 2, visibleSize.height - titleLabel->getContentSize().height - 30));
+	this->addChild(titleLabel, 1);
+
     auto closeItem = MenuItemImage::create(
         "CloseNormal.png",
         "CloseSelected.png",
@@ -123,6 +127,22 @@ void TetrisGameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, coco
     case EventKeyboard::KeyCode::KEY_DOWN_ARROW:
         _tetromino->fall();
         break;
+
+	/*case EventKeyboard::KeyCode::KEY_A:
+		_tetromino->move(DIR::LEFT);
+		break;
+
+	case EventKeyboard::KeyCode::KEY_D:
+		_tetromino->move(DIR::RIGHT);
+		break;
+
+	case EventKeyboard::KeyCode::KEY_W:
+		_tetromino->rotate();
+		break;
+
+	case EventKeyboard::KeyCode::KEY_S:
+		_tetromino->fall();
+		break;*/
     }
 }
 
@@ -130,12 +150,13 @@ void TetrisGameScene::drawGridMap()
 {
     auto visibleSize = Director::getInstance()->getVisibleSize();
 
+	// 坐标向右偏移240单位
     for (int i = 0; i <= MAX_MAP_ROW; i++)
     {
         auto draw = DrawNode::create();
         draw->drawLine(
-            Vec2(0, i*BLOCK_SIZE), 
-            Vec2(BLOCK_SIZE*MAX_COL, i*BLOCK_SIZE), 
+            Vec2(0 + 240, i*BLOCK_SIZE), 
+            Vec2(BLOCK_SIZE*MAX_COL + 240, i*BLOCK_SIZE), 
             Color4F(Color3B::WHITE, 0.2));
 
         this->addChild(draw);
@@ -144,24 +165,24 @@ void TetrisGameScene::drawGridMap()
     for (int i = 0; i <= MAX_COL; i++)
     {
         auto draw = DrawNode::create();
-        draw->drawLine(Vec2(i * BLOCK_SIZE, 0), Vec2(i * BLOCK_SIZE, BLOCK_SIZE * 20), Color4F(Color3B::WHITE, 0.2));
+        draw->drawLine(Vec2(i * BLOCK_SIZE + 240, 0), Vec2(i * BLOCK_SIZE + 240, BLOCK_SIZE * 20), Color4F(Color3B::WHITE, 0.2));
         this->addChild(draw);
     }
 
 #ifdef _DEBUG
-    for (int i = 0; i < 20; i++)
+    /*for (int i = 0; i < 20; i++)
     {
         for (int j = 0; j < MAX_COL; j++)
         {
             char t[10];
             sprintf(t, "%d,%d", i, j);
             auto label = Label::createWithSystemFont(t, "Ariel", 11);
-            label->setPosition(j * BLOCK_SIZE + BLOCK_SIZE/2, i * BLOCK_SIZE + BLOCK_SIZE / 2);
+            label->setPosition(j * BLOCK_SIZE + BLOCK_SIZE/2 + 240, i * BLOCK_SIZE + BLOCK_SIZE / 2);
             label->setColor(cocos2d::Color3B::RED);
             label->setAlignment(TextHAlignment::CENTER);
             this->addChild(label, 1);
         }
-    }
+    }*/
 #endif // DEBUG
 }
 

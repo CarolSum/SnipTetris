@@ -43,13 +43,13 @@ void TetrisManager::request(const int& code)
 
 const shared_ptr<TetrisMap>& TetrisManager::getTetrisMap() const
 {
-    // TODO: 여기에 반환 구문을 삽입합니다.（在这里插入返回语法）
+    // （在这里插入返回语法）
     return _gridMap;
 }
 
 const shared_ptr<TetrominoAction>& TetrisManager::getTetromino() const
 {
-    // TODO: 여기에 반환 구문을 삽입합니다.（在这里插入返回语法）
+    // （在这里插入返回语法）
     return _action;
 }
 

@@ -6,7 +6,7 @@ namespace TETRIS
     const int BLOCK_HALF = BLOCK_SIZE / 2.F;
     const int DEGREE = -90.0F;
 
-    const int MAX_COL = 10;
+    const int MAX_COL = 20;
     const int MAX_ROW = 22;
     const int MAX_MAP_ROW = 20;
     const int INDEX_MAX_ROW = MAX_MAP_ROW - 1;

@@ -7,7 +7,8 @@ void TetrominoFactory::initAxisPosition(shared_ptr<Tetromino>& p)
 {
     float x = (p->shape->referToInitCoordTable(0, 1) * BLOCK_SIZE) + BLOCK_HALF;
     float y = (p->shape->referToInitCoordTable(1, 1) * BLOCK_SIZE) + BLOCK_HALF;
-    p->axis->setPosition(Vec2(x, y));
+	// 右偏移240
+    p->axis->setPosition(Vec2(x + 240, y));
 }
 
 shared_ptr<Tetromino> TetrominoFactory::createTetromino(TetrisGameScene *scene, bool visible)
@@ -40,6 +41,7 @@ shared_ptr<Tetromino> TetrominoFactory::createTetromino(TetrisGameScene *scene, 
 
     for (int i = 0; i < 4; i++)
     {
+		//设置新生成的方块的位置
         float x = tetromino->shape->referToInitLocationTable(0, i) * BLOCK_SIZE;
         float y = tetromino->shape->referToInitLocationTable(1, i) * BLOCK_SIZE;
         tetromino->blocks[i]->sprite->setPosition(Vec2(x, y));
@@ -80,7 +82,8 @@ void TetrominoFactory::next(TetrisGameScene *scene)
 
     static const float x = mx + (vs.width - mx) * 0.5F;
 
-    _next->axis->setPositionX(vs.width * 0.77F);
+	// 右偏移120
+    _next->axis->setPositionX(vs.width * 0.77F + 120);
     _next->axis->setPositionY(BLOCK_SIZE * 16.F);
 
     _next->axis->setVisible(true);
