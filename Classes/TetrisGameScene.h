@@ -20,7 +20,7 @@ private: /* cocos2d: private member function */
 
 private: /* private member function */
     void drawGridMap();
-    void registListner();
+    void registerListener();
 
 public: /* public member function */
     void gameOver();

@@ -24,15 +24,16 @@ bool TetrisMap::isAccessible(const TCoord& _coord)
 {
     array<bool, 4> checkList = 
     {
-        _coord.cx < 0, _coord.ry < 0,
-        _coord.cx >(MAX_COL - 1),
-        _coord.ry >(MAX_ROW - 1)
+        _coord.cx >= 0,
+		_coord.ry >= 0,
+        _coord.cx <= (MAX_COL - 1),
+        _coord.ry <= (MAX_ROW - 1)
     };
 
-    if (!all_of(checkList.begin(), checkList.end(), [](const bool& _b) { return !_b; })) 
-        return false;
+    if (all_of(checkList.begin(), checkList.end(), [](bool x) { return x; })) 
+        return _conceptualMap[rowIndex(_coord.ry)][colIndex(_coord.cx)] == false;
 
-    return _conceptualMap[rowIndex(_coord.ry)][_coord.cx] == false;
+	return false;
 }
 
 void TetrisMap::reset()
@@ -62,16 +63,25 @@ void TetrisMap::setManager(const shared_ptr<TetrisManager>& manager)
 bool TetrisMap::update()
 {
     auto scene = _tetromino->blocks[0]->sprite->getParent()->getParent();
+	// 暂时先这么干 但这么干是错的
+	auto visibleSize = Director::getInstance()->getVisibleSize();
+	auto gridMapSize = Size(BLOCK_SIZE * MAX_COL, BLOCK_SIZE * MAX_ROW);
+	auto gridMapOrigin = Vec2(MAX(visibleSize.width / 2 - gridMapSize.width / 2, 0), 0);
+
+	auto gridMapLeft = gridMapOrigin.x;
+	auto gridMapRight = gridMapLeft + gridMapSize.width;
+	auto gridMapBottom = gridMapOrigin.y;
+	auto gridMapTop = gridMapBottom + gridMapSize.height;
 
     for (auto &block : _tetromino->blocks)
     {
-        _concreteMap[rowIndex(block->coord.ry)][block->coord.cx] = block;
-        _conceptualMap[rowIndex(block->coord.ry)][block->coord.cx] = true;
+        _concreteMap[rowIndex(block->coord.ry)][colIndex(block->coord.cx)] = block;
+        _conceptualMap[rowIndex(block->coord.ry)][colIndex(block->coord.cx)] = true;
 
         block->sprite->retain();
         block->sprite->removeFromParent();
 		// 右偏移120
-        block->sprite->setPositionX(BLOCK_SIZE * block->coord.cx + BLOCK_HALF + 240);
+        block->sprite->setPositionX(gridMapLeft + BLOCK_SIZE * block->coord.cx + BLOCK_HALF);
         block->sprite->setPositionY(BLOCK_SIZE * block->coord.ry + BLOCK_HALF);
         scene->addChild(block->sprite);
         block->sprite->release();
@@ -160,6 +170,12 @@ void TetrisMap::fall(const int& line)
 
 int TetrisMap::rowIndex(const int & i) const
 {
-    assert((MAX_ROW - i - 1) >= 0 && "index out of range");
+    assert(i >= 0 && (MAX_ROW - i - 1) >= 0&& "row index out of range");
     return MAX_ROW - i - 1;
+}
+
+int TetrisMap::colIndex(const int & i) const
+{
+	assert(i >= 0 && (MAX_COL - i - 1) >= 0 && "column index out of range");
+	return i;
 }

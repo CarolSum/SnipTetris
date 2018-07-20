@@ -5,10 +5,20 @@
 
 void TetrominoFactory::initAxisPosition(shared_ptr<Tetromino>& p)
 {
-    float x = (p->shape->referToInitCoordTable(0, 1) * BLOCK_SIZE) + BLOCK_HALF;
-    float y = (p->shape->referToInitCoordTable(1, 1) * BLOCK_SIZE) + BLOCK_HALF;
-	// 右偏移240
-    p->axis->setPosition(Vec2(x + 240, y));
+	// 暂时先这么干 但这么干是错的
+	auto visibleSize = Director::getInstance()->getVisibleSize();
+	auto gridMapSize = Size(BLOCK_SIZE * MAX_COL, BLOCK_SIZE * MAX_ROW);
+	auto gridMapOrigin = Vec2(MAX(visibleSize.width / 2 - gridMapSize.width / 2, 0), 0);
+
+	auto gridMapLeft = gridMapOrigin.x;
+	auto gridMapRight = gridMapLeft + gridMapSize.width;
+	auto gridMapBottom = gridMapOrigin.y;
+	auto gridMapTop = gridMapBottom + gridMapSize.height;
+
+    float x = ((p->shape->referToInitCoordTable(0, 1) + 5) * BLOCK_SIZE) + BLOCK_HALF + gridMapLeft;
+    float y = (p->shape->referToInitCoordTable(1, 1) * BLOCK_SIZE) + BLOCK_HALF + gridMapBottom;
+
+    p->axis->setPosition(Vec2(x, y));
 }
 
 shared_ptr<Tetromino> TetrominoFactory::createTetromino(TetrisGameScene *scene, bool visible)

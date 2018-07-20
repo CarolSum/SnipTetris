@@ -25,15 +25,15 @@ public:
     shared_ptr<Block> getBlock()
     {
         if (_pool->size() == 0) return make_shared<Block>();
-
-        auto block = *_pool->begin();
+		
+        auto block = _pool->front();
         _pool->pop_front();
 
         return block;
     }
 
 private:
-    unique_ptr < list<shared_ptr<Block>>> _pool;
+    unique_ptr<list<shared_ptr<Block>>> _pool;
 };
 
 class TetrisColorPool

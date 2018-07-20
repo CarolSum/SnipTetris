@@ -18,7 +18,8 @@ private:
     void findBingo();
     void deleteLine(const int& line);
     void fall(const int& line);
-    int rowIndex(const int& i) const;
+	int rowIndex(const int& i) const;
+	int colIndex(const int& i) const;
 
 public:
     void init(TetrisGameScene *scene);

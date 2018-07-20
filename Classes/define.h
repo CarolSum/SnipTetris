@@ -2,8 +2,8 @@
 
 namespace TETRIS
 {
-    const int BLOCK_SIZE = 25.0F;
-    const int BLOCK_HALF = BLOCK_SIZE / 2.F;
+    const float BLOCK_SIZE = 25.0F;
+    const float BLOCK_HALF = BLOCK_SIZE / 2.F;
     const int DEGREE = -90.0F;
 
     const int MAX_COL = 20;
