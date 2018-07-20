@@ -23,6 +23,17 @@ void TetrominoFactory::initAxisPosition(shared_ptr<Tetromino>& p)
 
 shared_ptr<Tetromino> TetrominoFactory::createTetromino(TetrisGameScene *scene, bool visible)
 {
+	shared_ptr<Tetromino> newTetromino;
+
+	if (_next == nullptr)
+	{
+		return _next;
+	}
+	return next;
+}
+
+shared_ptr<Tetromino> TetrominoFactory::createTetromino(TetrisGameScene *scene, bool visible)
+{
     if (_next != nullptr)
     {
         initAxisPosition(_next);
@@ -112,17 +123,17 @@ void TetrominoFactory::addOrderer(const shared_ptr<TetrominoOrderer>& orderer)
     _orderers.push_back(orderer);
 }
 
-unique_ptr<TetrominoShape> TetrominoFactory::getRandomShape()
+shared_ptr<Tetromino> TetrominoFactory::getRandomTetromino()
 {
     switch (UTIL::randomRagne(0, 6))
     {
-		case 0: return make_unique<IShape>(); break;
-		case 1: return make_unique<JShape>(); break;
-		case 2: return make_unique<LShape>(); break;
-		case 3: return make_unique<SShape>(); break;
-		case 4: return make_unique<TShape>(); break;
-		case 5: return make_unique<ZShape>(); break;
-		case 6: return make_unique<OShape>(); break;
+		case 0: return make_shared<TetrominoI>(); break;
+		case 1: return make_shared<TetrominoI>(); break;
+		case 2: return make_shared<TetrominoI>(); break;
+		case 3: return make_shared<TetrominoI>(); break;
+		case 4: return make_shared<TetrominoI>(); break;
+		case 5: return make_shared<TetrominoI>(); break;
+		case 6: return make_shared<TetrominoI>(); break;
 		default: return nullptr;
     }
 }
