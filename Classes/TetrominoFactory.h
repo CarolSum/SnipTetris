@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Tetromino.h"
+
 class TetrisGameScene;
 class TetrominoOrderer;
 
