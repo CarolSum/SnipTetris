@@ -16,8 +16,8 @@ using namespace std;
 #include <functional>
 
 #include "Util.h"
-#include "define.h"
-#include "block.h"
+#include "Define.h"
+#include "Block.h"
 #include "FixedNumberTable.h"
 #include "TetrominoShape.h"
 #include "TetrominoOrderer.h"

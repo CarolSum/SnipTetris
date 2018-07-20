@@ -1,10 +1,10 @@
-﻿#include "headers.h"
+﻿#include "Headers.h"
 #include "TetrisMap.h"
 #include "TetrisBlockPool.h"
 #include "TetrisGameScene.h"
-#include "TetrisManager.h"
+#include "GameManager.h"
 
-TetrisMap::TetrisMap(const shared_ptr<TetrisManager>& manager)
+TetrisMap::TetrisMap(const shared_ptr<GameManager>& manager)
     :_manager(manager)
 {
 }
@@ -20,7 +20,7 @@ void TetrisMap::init(TetrisGameScene * scene)
     _collector = bind(&TetrisBlockPool::collect, TetrisBlockPool::getInstance(), std::placeholders::_1);
 }
 
-bool TetrisMap::isAccessible(const TCoord& _coord)
+bool TetrisMap::isAccessible(const coord_t& _coord)
 {
     array<bool, 4> checkList = 
     {
@@ -55,7 +55,7 @@ void TetrisMap::reset()
         row.fill(false);
 }
 
-void TetrisMap::setManager(const shared_ptr<TetrisManager>& manager)
+void TetrisMap::setManager(const shared_ptr<GameManager>& manager)
 {
     _manager = manager;
 }

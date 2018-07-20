@@ -1,26 +1,17 @@
-﻿#include "headers.h"
+﻿#include "Headers.h"
 #include "TetrisGameScene.h"
 #include "TetrisParticleManager.h"
-#include "TetrisManager.h"
+#include "GameManager.h"
 #include "TetrominoFactory.h"
-//#include <vld.h>
 
 Scene* TetrisGameScene::createScene()
 {
-    // 'scene' is an autorelease object
     auto scene = Scene::create();
-
-    // 'layer' is an autorelease object
     auto layer = TetrisGameScene::create();
-
-    // add layer as a child to scene
     scene->addChild(layer);
-
-    // return the scene
     return scene;
 }
 
-// on "init" you need to initialize your instance
 bool TetrisGameScene::init()
 {
     if (!Layer::init())
@@ -64,14 +55,14 @@ bool TetrisGameScene::init()
 	// 注册键盘监听事件
     registerListener();
 
+	// 初始化各部件
     _gameOver = make_unique<GameOver>(this);
-    _manager = make_shared<TetrisManager>();
+    _manager = make_shared<GameManager>();
     _manager->init(this);
+	_tetrominoAction = _manager->getTetrominoAction();
 
-    _tetromino = _manager->getTetromino();
-
-    _oldTime = 0;
-    _newTime = clock();
+	this->unscheduleUpdate(); // 关闭默认每帧update
+	this->setActivation(true); // 开启自定义每400ms做一次update
 
     return true;
 }
@@ -85,21 +76,16 @@ void TetrisGameScene::menuCloseCallback(Ref* pSender)
 #endif
 }
 
+void TetrisGameScene::setActivation(bool b)
+{
+	if (b) this->schedule(schedule_selector(TetrisGameScene::update), 0.4f);
+	else this->unschedule(schedule_selector(TetrisGameScene::update));
+	this->_kbListner->setEnabled(b);
+}
+
 void TetrisGameScene::update(float dt)
 {
-    if (_newTime - _oldTime < 400)
-    {
-        _newTime = clock();
-        return;
-    }
-
-    if (!_tetromino->fall())
-    {
-        return;
-    }
-
-    _oldTime = _newTime;
-    _newTime = clock();
+	_tetrominoAction->fall();
 }
 
 void TetrisGameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event * event)
@@ -109,35 +95,37 @@ void TetrisGameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, coco
     case EventKeyboard::KeyCode::KEY_SPACE:
         if (!_eventDispatcher->isEnabled()) return;
         setActivation(false);
-        _tetromino->hardDrop();
+		_tetrominoAction->hardDrop();
         break;
 
     case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
 	case EventKeyboard::KeyCode::KEY_CAPITAL_A:
 	case EventKeyboard::KeyCode::KEY_A:
-        _tetromino->move(DIR::LEFT);
+		_tetrominoAction->move(DIR::LEFT);
         break;
 
     case EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
 	case EventKeyboard::KeyCode::KEY_CAPITAL_D:
 	case EventKeyboard::KeyCode::KEY_D:
-        _tetromino->move(DIR::RIGHT);
+		_tetrominoAction->move(DIR::RIGHT);
         break;
 
     case EventKeyboard::KeyCode::KEY_UP_ARROW:
 	case EventKeyboard::KeyCode::KEY_CAPITAL_W:
 	case EventKeyboard::KeyCode::KEY_W:
-        _tetromino->rotate();
+		_tetrominoAction->rotate();
         break;
 
     case EventKeyboard::KeyCode::KEY_DOWN_ARROW:
 	case EventKeyboard::KeyCode::KEY_CAPITAL_S:
 	case EventKeyboard::KeyCode::KEY_S:
-        _tetromino->fall();
+		_tetrominoAction->fall();
         break;
     }
 }
 
+
+// 绘制格子线框
 void TetrisGameScene::drawGridMap()
 {
     auto visibleSize = Director::getInstance()->getVisibleSize();
@@ -170,25 +158,6 @@ void TetrisGameScene::drawGridMap()
 			Color4F(Color3B::WHITE, 0.2));
 		this->addChild(draw);
 	}
-
-	//// 坐标向右偏移240单位
- //   for (int i = 0; i <= MAX_MAP_ROW; i++)
- //   {
- //       auto draw = DrawNode::create();
- //       draw->drawLine(
- //           Vec2(0 + 240, i * BLOCK_SIZE), 
- //           Vec2(BLOCK_SIZE * MAX_COL + 240, i * BLOCK_SIZE), 
- //           Color4F(Color3B::WHITE, 0.2));
-
- //       this->addChild(draw);
- //   }
-
- //   for (int i = 0; i <= MAX_COL; i++)
- //   {
- //       auto draw = DrawNode::create();
- //       draw->drawLine(Vec2(i * BLOCK_SIZE + 240, 0), Vec2(i * BLOCK_SIZE + 240, BLOCK_SIZE * 20), Color4F(Color3B::WHITE, 0.2));
- //       this->addChild(draw);
- //   }
 
 #ifdef _DEBUG
     /*for (int i = 0; i < 20; i++)

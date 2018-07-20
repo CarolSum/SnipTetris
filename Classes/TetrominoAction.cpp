@@ -1,15 +1,15 @@
-﻿#include "headers.h"
+﻿#include "Headers.h"
 #include "TetrisMap.h"
 #include "TetrominoFactory.h"
 #include "TetrominoAction.h"
 #include "TetrisGameScene.h"
-#include "TetrisManager.h"
+#include "GameManager.h"
 
 TetrominoAction::~TetrominoAction()
 {
 }
 
-TetrominoAction::TetrominoAction(const shared_ptr<TetrisManager>& manager)
+TetrominoAction::TetrominoAction(const shared_ptr<GameManager>& manager)
     :_manager(manager)
 {
 }
@@ -20,7 +20,7 @@ void TetrominoAction::init(TetrisGameScene * scene)
     _tetrisMap = _manager.lock()->getTetrisMap();
 }
 
-void TetrominoAction::setManager(const shared_ptr<TetrisManager>& manager)
+void TetrominoAction::setManager(const shared_ptr<GameManager>& manager)
 {
     _manager = manager;
 }
@@ -32,7 +32,7 @@ void TetrominoAction::requestUpdate()
 
 bool TetrominoAction::fall()
 {
-    if (mapCheck(0) == false)
+    if (!mapCheck(DIR::DOWN))
     {
         requestUpdate();
         return false;
@@ -46,25 +46,30 @@ bool TetrominoAction::fall()
     return true;
 }
 
-void TetrominoAction::move(const int & dir)
+void TetrominoAction::move(const int & direct)
 {
-    if (!mapCheck(dir)) return;
+    if (!mapCheck(direct))
+		return;
 
-    _tetromino->axis->setPositionX(_tetromino->axis->getPositionX() + BLOCK_SIZE * dir);
+	auto vec = 0;
+	if (direct == DIR::LEFT) vec = -1;
+	if (direct == DIR::RIGHT) vec = 1;
+
+    _tetromino->axis->setPositionX(_tetromino->axis->getPositionX() + BLOCK_SIZE * vec);
 
     std::for_each(_tetromino->blocks.begin(), _tetromino->blocks.end(), 
-        [&dir](const shared_ptr<Block>& block) { block->coord.cx += dir; });
+        [vec](const shared_ptr<Block>& block) { block->coord.cx += vec; });
 }
 
 void TetrominoAction::rotate()
 {
-    float &&targetDegree = _tetromino->axis->getRotation() + DEGREE;
+    float &&targetDegree = _tetromino->axis->getRotation() - 90.0f;
     const auto degree = wrap(targetDegree, _tetromino->shape->getMaxAngle(), 0.f);
     const auto index = static_cast<int>(fabs(degree) / 90.0f);
 
     auto k = 0;
 
-    array<TCoord, 4> simulArray;
+    array<coord_t, 4> simulArray;
 
     for (int i = 0; i < 4; i++)
     {
@@ -77,12 +82,12 @@ void TetrominoAction::rotate()
         _tetromino->axis->setRotation(degree);
 }
 
-bool TetrominoAction::rotationSimulate(array<TCoord, 4>& _simulArray)
+bool TetrominoAction::rotationSimulate(array<coord_t, 4>& _simulArray)
 {
-    TCoord corrVal;
+    coord_t corrVal;
     getLocationCorrectionValue(_simulArray, corrVal);
 
-    if (any_of(_simulArray.begin(), _simulArray.end(), [&corrVal, this](TCoord& _coord) 
+    if (any_of(_simulArray.begin(), _simulArray.end(), [&corrVal, this](coord_t& _coord) 
     {
         _coord.cx += corrVal.cx; _coord.ry += corrVal.ry;
         return !_tetrisMap->isAccessible(_coord);
@@ -96,7 +101,7 @@ bool TetrominoAction::rotationSimulate(array<TCoord, 4>& _simulArray)
     return true;
 }
 
-void TetrominoAction::getLocationCorrectionValue(const array<TCoord, 4>& _simulArray, TCoord & _correctionVal)
+void TetrominoAction::getLocationCorrectionValue(const array<coord_t, 4>& _simulArray, coord_t & _correctionVal)
 {
     auto distance = 0;
     for (const auto &coord : _simulArray)
@@ -136,7 +141,7 @@ bool TetrominoAction::hardDrop()
         if (count == 0) subjects.push_back(subject);
     }
 
-    TCoord tmp;
+    coord_t tmp;
     vector<int> distance;
 
     for (const auto& subject : subjects) {
@@ -175,18 +180,23 @@ bool TetrominoAction::mapCheck(const int& dir)
 {
     return all_of(_tetromino->blocks.begin(), _tetromino->blocks.end(),
         [&dir, this](const shared_ptr<Block>& block) {
-        static TCoord coord;
+        coord_t coord;
 
-        if (DIR::BOTTOM == dir) {
+        if (dir == DIR::DOWN) {
             coord.cx = block->coord.cx;
             coord.ry = block->coord.ry - 1;
         }
-        else 
+        else if (dir == DIR::LEFT)
         {
-            coord.cx = block->coord.cx + dir;
+            coord.cx = block->coord.cx - 1;
             coord.ry = block->coord.ry;
         }
+		else if (dir == DIR::RIGHT)
+		{
+			coord.cx = block->coord.cx + 1;
+			coord.ry = block->coord.ry;
+		}
 
-        return _tetrisMap->isAccessible(coord) == true;
+        return _tetrisMap->isAccessible(coord);
     });
 }

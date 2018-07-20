@@ -5,7 +5,7 @@ class TetrominoShape;
 struct Tetromino
 {
     cocos2d::Node *axis;
-    Blocks blocks;
+    FourBlocks blocks;
     unique_ptr<TetrominoShape> shape;
 };
 
@@ -15,7 +15,7 @@ public:
     virtual ~TetrominoShape() = 0 {}
     virtual const int& getColor() = 0;
     virtual const float& getMaxAngle() = 0;
-    virtual const int& referToInitCoordTable(const int& row, const int& col) = 0;
+    virtual const int& referToInicoord_tTable(const int& row, const int& col) = 0;
     virtual const int& referToInitLocationTable(const int& row, const int& col) = 0;
     virtual const int& referToRotationTable(const int& row, const int& col) = 0;
 };
@@ -29,7 +29,7 @@ private:
 public:
     const int& getColor() { return _color; }
     const float& getMaxAngle() { return _maxAngle; }
-    const int& referToInitCoordTable(const int& row, const int& col) { return crd::I[row][col]; }
+    const int& referToInicoord_tTable(const int& row, const int& col) { return crd::I[row][col]; }
     const int& referToInitLocationTable(const int& row, const int& col) { return loc::I[row][col]; }
     const int& referToRotationTable(const int& row, const int& col) { return fnt::I[row][col]; };
 };
@@ -43,7 +43,7 @@ private:
 public:
     const int& getColor() { return _color; }
     const float& getMaxAngle() { return _maxAngle; }
-    const int& referToInitCoordTable(const int& row, const int& col) { return crd::J[row][col]; }
+    const int& referToInicoord_tTable(const int& row, const int& col) { return crd::J[row][col]; }
     const int& referToInitLocationTable(const int& row, const int& col) { return loc::J[row][col]; }
     const int& referToRotationTable(const int& row, const int& col) { return fnt::J[row][col]; };
 };
@@ -57,7 +57,7 @@ private:
 public:
     const int& getColor() { return _color; }
     const float& getMaxAngle() { return _maxAngle; }
-    const int& referToInitCoordTable(const int& row, const int& col) { return crd::L[row][col]; }
+    const int& referToInicoord_tTable(const int& row, const int& col) { return crd::L[row][col]; }
     const int& referToInitLocationTable(const int& row, const int& col) { return loc::L[row][col]; }
     const int& referToRotationTable(const int& row, const int& col) { return fnt::L[row][col]; };
 };
@@ -71,7 +71,7 @@ private:
 public:
     const int& getColor() { return _color; }
     const float& getMaxAngle() { return _maxAngle; }
-    const int& referToInitCoordTable(const int& row, const int& col) { return crd::T[row][col]; }
+    const int& referToInicoord_tTable(const int& row, const int& col) { return crd::T[row][col]; }
     const int& referToInitLocationTable(const int& row, const int& col) { return loc::T[row][col]; }
     const int& referToRotationTable(const int& row, const int& col) { return fnt::T[row][col]; };
 };
@@ -85,7 +85,7 @@ private:
 public:
     const int& getColor() { return _color; }
     const float& getMaxAngle() { return _maxAngle; }
-    const int& referToInitCoordTable(const int& row, const int& col) { return crd::S[row][col]; }
+    const int& referToInicoord_tTable(const int& row, const int& col) { return crd::S[row][col]; }
     const int& referToInitLocationTable(const int& row, const int& col) { return loc::S[row][col]; }
     const int& referToRotationTable(const int& row, const int& col) { return fnt::S[row][col]; };
 };
@@ -99,7 +99,7 @@ private:
 public:
     const int& getColor() { return _color; }
     const float& getMaxAngle() { return _maxAngle; }
-    const int& referToInitCoordTable(const int& row, const int& col) { return crd::Z[row][col]; }
+    const int& referToInicoord_tTable(const int& row, const int& col) { return crd::Z[row][col]; }
     const int& referToInitLocationTable(const int& row, const int& col) { return loc::Z[row][col]; }
     const int& referToRotationTable(const int& row, const int& col) { return fnt::Z[row][col]; };
 };
@@ -113,7 +113,7 @@ private:
 public:
     const int& getColor() { return _color; }
     const float& getMaxAngle() { return _maxAngle; }
-    const int& referToInitCoordTable(const int& row, const int& col) { return crd::O[row][col]; }
+    const int& referToInicoord_tTable(const int& row, const int& col) { return crd::O[row][col]; }
     const int& referToInitLocationTable(const int& row, const int& col) { return loc::O[row][col]; }
     const int& referToRotationTable(const int& row, const int& col) { return fnt::O[row][col]; };
 };

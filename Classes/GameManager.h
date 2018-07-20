@@ -5,17 +5,14 @@ class TetrisMap;
 class TetrominoAction;
 class TetrominoFactory;
 
-class TetrisManager : public enable_shared_from_this<TetrisManager>
+class GameManager : public enable_shared_from_this<GameManager>
 {
-public:
-    
-
 public:
     void init(TetrisGameScene *scene);
     void request(const int& code);
 
     const shared_ptr<TetrisMap>& getTetrisMap() const;
-    const shared_ptr<TetrominoAction>& getTetromino() const;
+    const shared_ptr<TetrominoAction>& getTetrominoAction() const;
 
 private:
     TetrisGameScene *_scene;

@@ -3,13 +3,13 @@
 class TetrisGameScene;
 class TetrisMap;
 class TetrominoFactory;
-class TetrisManager;
+class GameManager;
 
 class TetrominoAction : public TetrominoOrderer
 {
 public:
     ~TetrominoAction();
-    TetrominoAction(const shared_ptr<TetrisManager>& manager);
+    TetrominoAction(const shared_ptr<GameManager>& manager);
 
 public:
     void init(TetrisGameScene *scene);
@@ -21,15 +21,15 @@ public:
 
     const float& wrap(const float& x, const float& low, const float& high) { return x < low ? high : x; }
 
-    bool rotationSimulate(array<TCoord, 4>&);
-    void getLocationCorrectionValue(const array<TCoord, 4>& _simulArray, TCoord& _correctionVal);
+    bool rotationSimulate(array<coord_t, 4>&);
+    void getLocationCorrectionValue(const array<coord_t, 4>& _simulArray, coord_t& _correctionVal);
 
     void tetrominoUpdate(const shared_ptr<Tetromino>& tetromino) override
     {
         _tetromino = tetromino;
     }
 
-    void setManager(const shared_ptr<TetrisManager>& manager);
+    void setManager(const shared_ptr<GameManager>& manager);
 
 private:
     void requestUpdate();
@@ -38,5 +38,5 @@ private:
 private:
     shared_ptr<Tetromino> _tetromino;
     shared_ptr<TetrisMap> _tetrisMap;
-    weak_ptr<TetrisManager> _manager;
+    weak_ptr<GameManager> _manager;
 };

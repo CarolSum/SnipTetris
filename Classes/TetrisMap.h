@@ -6,12 +6,12 @@ class TetrisGameScene;
 typedef std::array<std::array<bool, MAX_COL>, MAX_ROW> conceptual_map;
 typedef std::array<std::array<shared_ptr<Block>, MAX_COL>, MAX_ROW> concrete_map;
 
-class TetrisManager;
+class GameManager;
 
 class TetrisMap : public TetrominoOrderer
 {
 public:
-    TetrisMap(const shared_ptr<TetrisManager>& manager);
+    TetrisMap(const shared_ptr<GameManager>& manager);
     ~TetrisMap();
 
 private:
@@ -24,7 +24,7 @@ private:
 public:
     void init(TetrisGameScene *scene);
     bool update();
-    bool isAccessible(const TCoord& _coord);
+    bool isAccessible(const coord_t& _coord);
     void setTetromino(const shared_ptr<Tetromino>& tetromino) { _tetromino = tetromino; }
     void reset();
 
@@ -33,13 +33,13 @@ public:
         _tetromino = tetromino;
     }
 
-    void setManager(const shared_ptr<TetrisManager>& manager);
+    void setManager(const shared_ptr<GameManager>& manager);
 
 private:
     concrete_map _concreteMap;
     conceptual_map _conceptualMap;
     shared_ptr<Tetromino> _tetromino;
-    weak_ptr<TetrisManager> _manager;
+    weak_ptr<GameManager> _manager;
     unique_ptr<TetrisParticleManager> _particleManager;
 
     function<void(const shared_ptr<Block> &)> _collector;

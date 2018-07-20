@@ -1,4 +1,4 @@
-﻿#include "headers.h"
+﻿#include "Headers.h"
 #include "TetrominoFactory.h"
 #include "TetrisBlockPool.h"
 #include "TetrisGameScene.h"
@@ -15,8 +15,8 @@ void TetrominoFactory::initAxisPosition(shared_ptr<Tetromino>& p)
 	auto gridMapBottom = gridMapOrigin.y;
 	auto gridMapTop = gridMapBottom + gridMapSize.height;
 
-    float x = ((p->shape->referToInitCoordTable(0, 1) + 5) * BLOCK_SIZE) + BLOCK_HALF + gridMapLeft;
-    float y = (p->shape->referToInitCoordTable(1, 1) * BLOCK_SIZE) + BLOCK_HALF + gridMapBottom;
+    float x = (p->shape->referToInicoord_tTable(0, 1) * BLOCK_SIZE) + BLOCK_HALF + gridMapLeft;
+    float y = (p->shape->referToInicoord_tTable(1, 1) * BLOCK_SIZE) + BLOCK_HALF + gridMapBottom;
 
     p->axis->setPosition(Vec2(x, y));
 }
@@ -56,8 +56,8 @@ shared_ptr<Tetromino> TetrominoFactory::createTetromino(TetrisGameScene *scene, 
         float y = tetromino->shape->referToInitLocationTable(1, i) * BLOCK_SIZE;
         tetromino->blocks[i]->sprite->setPosition(Vec2(x, y));
 
-        tetromino->blocks[i]->coord.cx = tetromino->shape->referToInitCoordTable(0, i);
-        tetromino->blocks[i]->coord.ry = tetromino->shape->referToInitCoordTable(1, i);
+        tetromino->blocks[i]->coord.cx = tetromino->shape->referToInicoord_tTable(0, i);
+        tetromino->blocks[i]->coord.ry = tetromino->shape->referToInicoord_tTable(1, i);
     }
 
     if (!_debugUI) _debugUI = make_unique<DebugUI>(scene);
@@ -114,17 +114,15 @@ void TetrominoFactory::addOrderer(const shared_ptr<TetrominoOrderer>& orderer)
 
 unique_ptr<TetrominoShape> TetrominoFactory::getRandomShape()
 {
-    //switch (0)
     switch (UTIL::randomRagne(0, 6))
     {
-    case 0: return make_unique<IShape>(); break;
-    case 1: return make_unique<JShape>(); break;
-    case 2: return make_unique<LShape>(); break;
-    case 3: return make_unique<SShape>(); break;
-    case 4: return make_unique<TShape>(); break;
-    case 5: return make_unique<ZShape>(); break;
-    case 6: return make_unique<OShape>(); break;
+		case 0: return make_unique<IShape>(); break;
+		case 1: return make_unique<JShape>(); break;
+		case 2: return make_unique<LShape>(); break;
+		case 3: return make_unique<SShape>(); break;
+		case 4: return make_unique<TShape>(); break;
+		case 5: return make_unique<ZShape>(); break;
+		case 6: return make_unique<OShape>(); break;
+		default: return nullptr;
     }
-
-    return make_unique<IShape>();
 }

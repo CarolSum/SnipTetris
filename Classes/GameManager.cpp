@@ -1,11 +1,11 @@
-﻿#include "headers.h"
-#include "TetrisManager.h"
+﻿#include "Headers.h"
+#include "GameManager.h"
 #include "TetrominoFactory.h"
 #include "TetrisGameScene.h"
 #include "TetrisMap.h"
 #include "TetrominoAction.h"
 
-void TetrisManager::init(TetrisGameScene *scene)
+void GameManager::init(TetrisGameScene *scene)
 {
     _scene = scene;
     _action = make_shared<TetrominoAction>(shared_from_this());
@@ -21,7 +21,7 @@ void TetrisManager::init(TetrisGameScene *scene)
 }
 
 
-void TetrisManager::request(const int& code)
+void GameManager::request(const int& code)
 {
     switch (code)
     {
@@ -41,15 +41,13 @@ void TetrisManager::request(const int& code)
     }
 }
 
-const shared_ptr<TetrisMap>& TetrisManager::getTetrisMap() const
+const shared_ptr<TetrisMap>& GameManager::getTetrisMap() const
 {
-    // （在这里插入返回语法）
     return _gridMap;
 }
 
-const shared_ptr<TetrominoAction>& TetrisManager::getTetromino() const
+const shared_ptr<TetrominoAction>& GameManager::getTetrominoAction() const
 {
-    // （在这里插入返回语法）
     return _action;
 }
 

@@ -24,20 +24,14 @@ private: /* private member function */
 
 public: /* public member function */
     void gameOver();
-    void setActivation(bool b)
-    {
-        if (b) this->scheduleUpdate();
-        else this->unscheduleUpdate();
-
-        _kbListner->setEnabled(b);
-    }
+	void setActivation(bool b);
 
 private: /* private member */
     bool _isGameOver;
     clock_t _newTime, _oldTime;
     EventListenerKeyboard *_kbListner;
-    shared_ptr<TetrisManager> _manager;
-    shared_ptr<TetrominoAction> _tetromino;
+    shared_ptr<GameManager> _manager;
+    shared_ptr<TetrominoAction> _tetrominoAction;
     unique_ptr<GameOver> _gameOver;
 };
 
