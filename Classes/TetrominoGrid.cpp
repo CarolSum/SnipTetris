@@ -36,6 +36,16 @@ shared_ptr<Block> TetrominoGrid::getBlockOrNull(int cx, int ry)
 	return _grid[cx][ry];
 }
 
+bool TetrominoGrid::isOccupied(int cx, int ry)
+{
+	return getBlockOrNull(cx, ry) != nullptr;
+}
+
+bool TetrominoGrid::isAccessible(int cx, int ry)
+{
+	return (cx >= 0 && cx < MAX_COL) && (ry >= 0 && ry < MAX_ROW) && !isOccupied(cx, ry);
+}
+
 void TetrominoGrid::nextRound()
 {
 	curTetro = nextTetro;
@@ -59,18 +69,85 @@ void TetrominoGrid::putTetro(const shared_ptr<Tetromino>& tetro)
 		auto& block = tetro->getBlocks()[i];
 		auto cx = colStart + tetro->getShape()[i][0];
 		auto ry = rowStart + tetro->getShape()[i][1];
+		// 插入块
 		_grid[cx][ry] = block;
+		// 更新正在操作的四格骨牌的坐标数据
+		curTetroCoord[i][0] = cx;
+		curTetroCoord[i][1] = ry;
 	}
+}
+
+#define SET_VAR_CX_RY(i, cx, ry) \
+int cx = curTetroCoord[i][0]; \
+int ry = curTetroCoord[i][1];
+
+#define TAKE_UP_TETRO() \
+for (int i = 0; i < 4; i++) \
+{ \
+	SET_VAR_CX_RY(i, cx, ry); \
+	_grid[cx][ry] = nullptr; \
+}
+
+#define PUT_BACK_TETRO() \
+for (int i = 0; i < 4; i++) \
+{ \
+	auto& block = curTetro->getBlocks()[i]; \
+	SET_VAR_CX_RY(i, cx, ry); \
+	_grid[cx][ry] = block; \
 }
 
 bool TetrominoGrid::fall()
 {
-	return false;
+	// 先从Grid上拿走四格骨牌的格子
+	TAKE_UP_TETRO();
+
+	// 检查可行性
+	for (int i = 0; i < 4; i++)
+	{
+		SET_VAR_CX_RY(i, cx, ry);
+		if (!isAccessible(cx, ry - 1))
+			return false;
+	}
+
+	// 执行
+	for (int i = 0; i < 4; i++)
+	{
+		int& ry = curTetroCoord[i][1];
+		ry -= 1;
+	}
+
+	// 再放回去
+	PUT_BACK_TETRO();
+
+	return true;
 }
 
 bool TetrominoGrid::move(DIRECTION dir)
 {
-	return false;
+	int offset = (dir == DIRECTION::LEFT) ? -1 : 1;
+
+	// 先从Grid上拿走四格骨牌的格子
+	TAKE_UP_TETRO();
+
+	// 检查可行性
+	for (int i = 0; i < 4; i++)
+	{
+		SET_VAR_CX_RY(i, cx, ry);
+		if (!isAccessible(cx + offset, ry))
+			return false;
+	}
+
+	// 执行
+	for (int i = 0; i < 4; i++)
+	{
+		int& cx = curTetroCoord[i][0];
+		cx += offset;
+	}
+
+	// 再放回去
+	PUT_BACK_TETRO();
+
+	return true;
 }
 
 bool TetrominoGrid::rotate()

@@ -35,10 +35,13 @@ public:
 
 	shared_ptr<Tetromino> getRandomTetromino();
 	shared_ptr<Block> getBlockOrNull(int cx, int ry);
+	bool isOccupied(int cx, int ry);
+	bool isAccessible(int cx, int ry);
 
 	shared_ptr<Tetromino> curTetro = nullptr;
+	int curTetroCoord[4][2] = { 0 };
 	shared_ptr<Tetromino> nextTetro = nullptr;
 
 private:
-	grid_t _grid = { nullptr, };
+	grid_t _grid = { nullptr };
 };
