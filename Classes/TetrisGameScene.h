@@ -1,9 +1,16 @@
-﻿#ifndef __HELLOWORLD_SCENE_H__
-#define __HELLOWORLD_SCENE_H__
-#include "TetrisMap.h"
-#include "TetrominoAction.h"
+﻿#pragma once
 
-//class GameOver;
+#include "cocos2d.h"
+USING_NS_CC;
+
+#include "Manager.h"
+#include "GameOver.h"
+#include <memory>
+
+using std::shared_ptr;
+using std::unique_ptr;
+
+class GameOver;
 
 class TetrisGameScene : public cocos2d::Layer
 {
@@ -28,13 +35,8 @@ public: /* public member function */
 
 private: /* private member */
     bool _isGameOver;
-    clock_t _newTime, _oldTime;
     EventListenerKeyboard *_kbListner;
-    shared_ptr<GameManager> _manager;
-    shared_ptr<TetrominoAction> _tetrominoAction;
+    shared_ptr<Manager> _manager;
     unique_ptr<GameOver> _gameOver;
 };
 
-
-
-#endif // __HELLOWORLD_SCENE_H__

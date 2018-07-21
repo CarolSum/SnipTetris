@@ -1,8 +1,23 @@
-﻿#include "Headers.h"
-#include "TetrisGameScene.h"
-#include "TetrisParticleManager.h"
-#include "GameManager.h"
-#include "TetrominoFactory.h"
+﻿#include "TetrisGameScene.h"
+#include "cocos2d.h"
+#include "SimpleAudioEngine.h"
+USING_NS_CC;
+
+#include <iostream>
+using namespace std;
+
+#include <memory>
+#include <array>
+#include <list>
+#include <time.h>
+#include <vector>
+#include <algorithm>
+#include <functional>
+
+#include "Util.h"
+#include "Block.h"
+#include "GameOver.h"
+#include "Manager.h"
 
 Scene* TetrisGameScene::createScene()
 {
@@ -52,15 +67,13 @@ bool TetrisGameScene::init()
 	// 画方块网格图
     drawGridMap();
 
-	// 注册键盘监听事件
+	// 注册键盘监听事件，在里面初始化_kbListner
     registerListener();
 
 	// 初始化各部件
     _gameOver = make_unique<GameOver>(this);
-    _manager = make_shared<GameManager>();
-    _manager->init(this);
-	_tetrominoAction = _manager->getTetrominoAction();
-
+    _manager = make_shared<Manager>(this);
+	
 	this->unscheduleUpdate(); // 关闭默认每帧update
 	this->setActivation(true); // 开启自定义每400ms做一次update
 
@@ -85,43 +98,17 @@ void TetrisGameScene::setActivation(bool b)
 
 void TetrisGameScene::update(float dt)
 {
-	_tetrominoAction->fall();
+	_manager->update(dt);
 }
 
 void TetrisGameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event * event)
 {
-    switch (keyCode) 
-    {
-    case EventKeyboard::KeyCode::KEY_SPACE:
-        if (!_eventDispatcher->isEnabled()) return;
-        setActivation(false);
-		_tetrominoAction->hardDrop();
-        break;
-
-    case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
-	case EventKeyboard::KeyCode::KEY_CAPITAL_A:
-	case EventKeyboard::KeyCode::KEY_A:
-		_tetrominoAction->move(DIR::LEFT);
-        break;
-
-    case EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
-	case EventKeyboard::KeyCode::KEY_CAPITAL_D:
-	case EventKeyboard::KeyCode::KEY_D:
-		_tetrominoAction->move(DIR::RIGHT);
-        break;
-
-    case EventKeyboard::KeyCode::KEY_UP_ARROW:
-	case EventKeyboard::KeyCode::KEY_CAPITAL_W:
-	case EventKeyboard::KeyCode::KEY_W:
-		_tetrominoAction->rotate();
-        break;
-
-    case EventKeyboard::KeyCode::KEY_DOWN_ARROW:
-	case EventKeyboard::KeyCode::KEY_CAPITAL_S:
-	case EventKeyboard::KeyCode::KEY_S:
-		_tetrominoAction->fall();
-        break;
-    }
+	if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
+	{
+		if (!_eventDispatcher->isEnabled()) return;
+		setActivation(false);
+	}
+	_manager->onKeyPressed(keyCode, event);
 }
 
 
@@ -158,22 +145,6 @@ void TetrisGameScene::drawGridMap()
 			Color4F(Color3B::WHITE, 0.2));
 		this->addChild(draw);
 	}
-
-#ifdef _DEBUG
-    /*for (int i = 0; i < 20; i++)
-    {
-        for (int j = 0; j < MAX_COL; j++)
-        {
-            char t[10];
-            sprintf(t, "%d,%d", i, j);
-            auto label = Label::createWithSystemFont(t, "Ariel", 11);
-            label->setPosition(j * BLOCK_SIZE + BLOCK_SIZE/2 + 240, i * BLOCK_SIZE + BLOCK_SIZE / 2);
-            label->setColor(cocos2d::Color3B::RED);
-            label->setAlignment(TextHAlignment::CENTER);
-            this->addChild(label, 1);
-        }
-    }*/
-#endif // DEBUG
 }
 
 void TetrisGameScene::registerListener()
@@ -196,12 +167,9 @@ void TetrisGameScene::gameOver()
         {
             if (keyCode == EventKeyboard::KeyCode::KEY_R)
             {
-                _oldTime = 0;
-                _newTime = clock();
-
                 _isGameOver = false;
                 _gameOver->show(false);
-                _manager->request(RQ_RESTART);
+                // _manager->request(RQ_RESTART);
                 _eventDispatcher->removeEventListener(keyboard_listner);
                 return;
             }

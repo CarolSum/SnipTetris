@@ -20,11 +20,9 @@ struct coord_t
 // Grid的每一个单元格子
 struct Block
 {
-    coord_t coord; // 在grid中的坐标
+	COLOR color = COLOR::RED;
     cocos2d::Sprite *sprite = cocos2d::Sprite::create(); // 游戏对象
 };
-
-// typedef std::array<std::shared_ptr<Block>, 5> FiveBlocks; // 五格骨牌
 
 const float BLOCK_SIZE = 25.0f;
 const float BLOCK_HALF = BLOCK_SIZE / 2;
