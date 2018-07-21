@@ -16,9 +16,6 @@ Manager::Manager(TetrisGameScene *scene) : _scene(scene)
 	displayGridLine();
 
 	nextRound();
-	/*_grid->nextRound();
-	displayNextTetromino();
-	displayGrid();*/
 }
 
 Manager::~Manager()
@@ -30,7 +27,7 @@ const shared_ptr<TetrominoGrid>& Manager::getGrid()
 	return _grid;
 }
 
-void Manager::update(float dt)
+void Manager::update()
 {
 	bool successToFall = _grid->fall();
 	if (successToFall)
@@ -77,13 +74,14 @@ void Manager::displayGridLine()
 	}
 }
 
+// 显示提示骨牌图
 void Manager::displayNextTetromino()
 {
 	// 先清理上一次的提示图
 	if (auto _node = _scene->getChildByName("nextTetroNode"))
 	{
-		_node->removeAllChildrenWithCleanup(false);
-		_scene->removeChild(_node, false);
+		_node->removeAllChildrenWithCleanup(true);
+		_scene->removeChild(_node);
 	}
 
 	auto nextTetroAxis = Node::create();
@@ -131,8 +129,6 @@ void Manager::displayNextTetromino()
 
 void Manager::displayGrid()
 {
-	// _gridnode->removeAllChildren();
-	// _gridnode->removeAllChildrenWithCleanup(false);
 	for (int i = 0; i < MAX_COL; i++)
 	{
 		for (int j = 0; j < MAX_ROW; j++)
@@ -153,6 +149,7 @@ void Manager::displayGrid()
 void Manager::nextRound()
 {
 	getGrid()->nextRound();
+	// 下面两个顺序不能乱，先取走原有子节点才能为此子节点添加新父节点
 	displayNextTetromino();
 	displayGrid();
 }
@@ -177,6 +174,7 @@ void Manager::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Eve
 	case EventKeyboard::KeyCode::KEY_SPACE:
 		_grid->hardDrop();
 		displayGrid();
+		update(); // 这个加快流畅度
 		break;
 
 	case EventKeyboard::KeyCode::KEY_LEFT_ARROW:

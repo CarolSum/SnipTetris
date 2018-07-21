@@ -14,7 +14,7 @@ public:
 	Manager(TetrisGameScene *scene);
 	~Manager();
 	void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event * event);
-	void update(float dt);
+	void update();
 	const shared_ptr<TetrominoGrid>& getGrid();
 private:
 	shared_ptr<TetrominoGrid> _grid = nullptr;

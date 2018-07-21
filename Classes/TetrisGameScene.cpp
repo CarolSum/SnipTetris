@@ -63,9 +63,6 @@ bool TetrisGameScene::init()
     background->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
     this->addChild(background);
 
-	// 画方块网格图
-    // drawGridMap();
-
 	// 注册键盘监听事件，在里面初始化_kbListner
     registerListener();
 
@@ -97,53 +94,17 @@ void TetrisGameScene::setActivation(bool b)
 
 void TetrisGameScene::update(float dt)
 {
-	_manager->update(dt);
+	_manager->update();
 }
 
 void TetrisGameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event * event)
 {
-	if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
-	{
-		if (!_eventDispatcher->isEnabled()) return;
-		setActivation(false);
-	}
+	//if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
+	//{
+	//	if (!_eventDispatcher->isEnabled()) return;
+	//	setActivation(false);
+	//}
 	_manager->onKeyPressed(keyCode, event);
-}
-
-
-// 绘制格子线框（弃用）
-void TetrisGameScene::drawGridMap()
-{
-    auto visibleSize = Director::getInstance()->getVisibleSize();
-	auto gridMapSize = Size(BLOCK_SIZE * MAX_COL, BLOCK_SIZE * MAX_ROW);
-	auto gridMapOrigin = Vec2(MAX(visibleSize.width / 2 - gridMapSize.width / 2, 0), 0);
-
-	auto gridMapLeft = gridMapOrigin.x;
-	auto gridMapRight = gridMapLeft + gridMapSize.width;
-	auto gridMapBottom = gridMapOrigin.y;
-	auto gridMapTop = gridMapBottom + gridMapSize.height;
-
-	for (int i = 0; i <= MAX_ROW; i++)
-	{
-		auto lineY = i * BLOCK_SIZE + gridMapBottom;
-		auto draw = DrawNode::create();
-		draw->drawLine(
-			Vec2(gridMapLeft, lineY), // 横线起点
-			Vec2(gridMapRight, lineY), // 横线终点
-			Color4F(Color3B::WHITE, 0.2));
-		this->addChild(draw);
-	}
-
-	for (int i = 0; i <= MAX_COL; i++)
-	{
-		auto lineX = i * BLOCK_SIZE + gridMapLeft;
-		auto draw = DrawNode::create();
-		draw->drawLine(
-			Vec2(lineX, gridMapBottom), // 竖线起点
-			Vec2(lineX, gridMapTop), //竖线终点
-			Color4F(Color3B::WHITE, 0.2));
-		this->addChild(draw);
-	}
 }
 
 void TetrisGameScene::registerListener()

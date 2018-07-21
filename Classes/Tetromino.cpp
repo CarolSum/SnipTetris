@@ -1,7 +1,7 @@
 #include "Tetromino.h"
 
 const int TetrominoI::shape[4][2] = { { 0, 0 },{ 1, 0 },{ 2, 0 },{ 3, 0 } };
-const int TetrominoI::rotationVector2[4][2] = { { 2, 1 },{ 1, 0 },{ 0, -1 },{ -1, -2 } };
+const int TetrominoI::rotationVector2[4][2] = { { 2, -1 },{ 1, 0 },{ 0, 1 },{ -1, 2 } };
 
 const int TetrominoJ::shape[4][2] = { { 0, 1 },{ 0, 0 },{ 1, 0 },{ 2, 0 } };
 const int TetrominoJ::rotationVector2[4][2] = { { 2, 0 },{ 1, -1 },{ 0, 0 },{ -1, -1 } };

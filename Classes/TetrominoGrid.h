@@ -25,6 +25,7 @@ public:
 
 	bool canFall();
 	bool canMove(DIRECTION dir);
+	bool canRotate();
 	bool fall();
 	bool move(DIRECTION dir);
 	bool rotate();

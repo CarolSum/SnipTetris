@@ -17,14 +17,14 @@ public:
 //	Tetromino(const std::shared_ptr<TetrominoGrid>& grid) : _grid(grid) {}
 	Tetromino() = default;
 	const shared_ptr<Block> *getBlocks() const { return _blocks; }
-	float getAngle() const { return _angle; }
-	float setAngle(float angle) { _angle = angle; }
+	int getAngle() const { return _angle; }
+	void rotate() { _angle = (_angle + 90) % 360; }
 	virtual COLOR getColor() const = 0;
 	virtual const int(*getShape())[2] = 0;
 	virtual const int(*getRotation())[2] = 0;
 protected:
 	shared_ptr<Block> _blocks[4];
-	float _angle = 0;
+	int _angle = 0;
 };
 
 #define TETROMINO_CONSTRUCTOR(_T) \

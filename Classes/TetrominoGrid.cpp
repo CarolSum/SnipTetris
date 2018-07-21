@@ -81,6 +81,10 @@ void TetrominoGrid::putTetro(const shared_ptr<Tetromino>& tetro)
 int cx = curTetroCoord[i][0]; \
 int ry = curTetroCoord[i][1];
 
+#define SET_REF_CX_RY(i, cx, ry) \
+int& cx = curTetroCoord[i][0]; \
+int& ry = curTetroCoord[i][1];
+
 #define TAKE_UP_TETRO() \
 for (int i = 0; i < 4; i++) \
 { \
@@ -171,14 +175,80 @@ bool TetrominoGrid::move(DIRECTION dir)
 	return true;
 }
 
+#define SET_CX_RY_AFTER_ROTATION(i, cx, ry, a, b) \
+do { \
+	int a = curTetro->getRotation()[i][0]; \
+	int b = curTetro->getRotation()[i][1]; \
+	int angle = curTetro->getAngle(); \
+	if (angle == 0) \
+	{ \
+		cx += a; \
+		ry -= b; \
+	} \
+	else if (angle == 90) \
+	{ \
+		cx -= b; \
+		ry -= a; \
+	} \
+	else if (angle == 180) \
+	{ \
+		cx -= a; \
+		ry += b; \
+	} \
+	else if (angle == 270) \
+	{ \
+		cx += b; \
+		ry += a; \
+	} \
+} while (0);
+
+bool TetrominoGrid::canRotate()
+{
+	// 默认可以旋转
+	bool result = true;
+	// 先从Grid上拿走四格骨牌的格子
+	TAKE_UP_TETRO();
+	// 检查是否存在不能踏足的格子
+	for (int i = 0; i < 4; i++)
+	{
+		// cx, ry都是新临时变量
+		SET_VAR_CX_RY(i, cx, ry);
+		// { a, b } 定义参考 Tetromino.h
+		SET_CX_RY_AFTER_ROTATION(i, cx, ry, a, b);
+		if (!isAccessible(cx, ry))
+		{
+			result = false;
+			break;
+		}
+	}
+	// 再放回去
+	PUT_BACK_TETRO();
+	// 返回结果
+	return result;
+}
+
+// 可以的话，旋转九十度
 bool TetrominoGrid::rotate()
 {
-	return false;
+	if (!canRotate()) return false;
+	TAKE_UP_TETRO();
+	for (int i = 0; i < 4; i++)
+	{
+		SET_REF_CX_RY(i, cx, ry);
+		// { a, b } 定义参考 Tetromino.h
+		SET_CX_RY_AFTER_ROTATION(i, cx, ry, a, b);
+	}
+	curTetro->rotate();
+	PUT_TETRO_BY_COORD();
+	return true;
 }
 
 bool TetrominoGrid::hardDrop()
 {
-	return false;
+	int fallCount = 0;
+	while (fall())
+		fallCount++;
+	return fallCount > 0;
 }
 
 bool TetrominoGrid::hasFullRow()
@@ -200,7 +270,7 @@ shared_ptr<Tetromino> TetrominoGrid::getRandomTetromino()
 {
 	shared_ptr<Tetromino> newTetromino;
 	if (_grid != nullptr)
-		switch (UTIL::randomRagne(0, 6))
+		switch (UTIL::randomRagne(0, 6) & 0)
 		{
 		case 0: newTetromino = make_shared<TetrominoI>(); break;
 		case 1: newTetromino = make_shared<TetrominoJ>(); break;
