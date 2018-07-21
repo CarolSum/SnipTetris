@@ -1,4 +1,4 @@
-﻿#include "TetrisGameScene.h"
+﻿#include "GameScene.h"
 #include "cocos2d.h"
 #include "SimpleAudioEngine.h"
 USING_NS_CC;
@@ -18,15 +18,15 @@ using namespace std;
 #include "GameOver.h"
 #include "Manager.h"
 
-Scene* TetrisGameScene::createScene()
+Scene* GameScene::createScene()
 {
     auto scene = Scene::create();
-    auto layer = TetrisGameScene::create();
+    auto layer = GameScene::create();
     scene->addChild(layer);
     return scene;
 }
 
-bool TetrisGameScene::init()
+bool GameScene::init()
 {
     if (!Layer::init())
     {
@@ -46,7 +46,7 @@ bool TetrisGameScene::init()
     auto closeItem = MenuItemImage::create(
         "CloseNormal.png",
         "CloseSelected.png",
-        CC_CALLBACK_1(TetrisGameScene::menuCloseCallback, this));
+        CC_CALLBACK_1(GameScene::menuCloseCallback, this));
     closeItem->setPosition(Vec2(origin.x + visibleSize.width - closeItem->getContentSize().width / 2,
         origin.y + closeItem->getContentSize().height / 2));
     // create menu, it's an autorelease object
@@ -76,7 +76,7 @@ bool TetrisGameScene::init()
     return true;
 }
 
-void TetrisGameScene::menuCloseCallback(Ref* pSender)
+void GameScene::menuCloseCallback(Ref* pSender)
 {
     Director::getInstance()->end();
 
@@ -85,38 +85,38 @@ void TetrisGameScene::menuCloseCallback(Ref* pSender)
 #endif
 }
 
-void TetrisGameScene::setActivation(bool _active)
+void GameScene::setActivation(bool _active)
 {
-	if (_active) this->schedule(schedule_selector(TetrisGameScene::update), 0.4f);
-	else this->unschedule(schedule_selector(TetrisGameScene::update));
+	if (_active) this->schedule(schedule_selector(GameScene::update), 0.4f);
+	else this->unschedule(schedule_selector(GameScene::update));
 	this->_kbListner->setEnabled(_active);
 }
 
-void TetrisGameScene::update(float dt)
+void GameScene::update(float dt)
 {
 	_manager->update();
 }
 
-void TetrisGameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event * event)
+void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event * event)
 {
 	_manager->onKeyPressed(keyCode, event);
 }
 
-void TetrisGameScene::registerListener()
+void GameScene::registerListener()
 {
     _kbListner = EventListenerKeyboard::create();
-    _kbListner->onKeyPressed = CC_CALLBACK_2(TetrisGameScene::onKeyPressed, this);
+    _kbListner->onKeyPressed = CC_CALLBACK_2(GameScene::onKeyPressed, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_kbListner, this);
 }
 
-void TetrisGameScene::reset()
+void GameScene::reset()
 {
 	_gameOver = make_unique<GameOver>(this);
 	_manager = make_shared<Manager>(this);
 	this->setActivation(true);
 }
 
-void TetrisGameScene::gameOver()
+void GameScene::gameOver()
 {
     _isGameOver = true;
     setActivation(false);

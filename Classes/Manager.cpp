@@ -1,5 +1,5 @@
 #include "Manager.h"
-#include "TetrisGameScene.h"
+#include "GameScene.h"
 
 #include <memory>
 #include <algorithm>
@@ -9,7 +9,7 @@ using std::make_unique;
 using std::min;
 using std::max;
 
-Manager::Manager(TetrisGameScene *scene) : _scene(scene)
+Manager::Manager(GameScene *scene) : _scene(scene)
 {
 	_grid = make_shared<TetrominoGrid>();
 	_gridnode = Node::create();

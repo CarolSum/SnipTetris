@@ -8,12 +8,12 @@
 using std::shared_ptr;
 using std::unique_ptr;
 
-class TetrisGameScene;
+class GameScene;
 
 class Manager
 {
 public:
-	Manager(TetrisGameScene *scene);
+	Manager(GameScene *scene);
 	~Manager();
 	void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event * event);
 	void update();
@@ -21,7 +21,7 @@ public:
 private:
 	shared_ptr<TetrominoGrid> _grid = nullptr;
 	STATE _state = STATE::CONTINUE;
-	TetrisGameScene *_scene = nullptr;
+	GameScene *_scene = nullptr;
 	Node *_gridnode = nullptr;
 	unique_ptr<ParticleManager> _particleManager = nullptr;
 

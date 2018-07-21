@@ -12,12 +12,12 @@ using std::unique_ptr;
 
 class GameOver;
 
-class TetrisGameScene : public cocos2d::Layer
+class GameScene : public cocos2d::Layer
 {
 public: /* constructor & destructor */
     static cocos2d::Scene* createScene();
     // implement the "static create()" method manually
-    CREATE_FUNC(TetrisGameScene);
+    CREATE_FUNC(GameScene);
 
 private: /* cocos2d: private member function */
     virtual bool init();
