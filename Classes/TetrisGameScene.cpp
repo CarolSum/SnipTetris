@@ -4,8 +4,6 @@
 USING_NS_CC;
 
 #include <iostream>
-using namespace std;
-
 #include <memory>
 #include <array>
 #include <list>
@@ -13,6 +11,7 @@ using namespace std;
 #include <vector>
 #include <algorithm>
 #include <functional>
+using namespace std;
 
 #include "Util.h"
 #include "Block.h"
@@ -65,7 +64,7 @@ bool TetrisGameScene::init()
     this->addChild(background);
 
 	// 画方块网格图
-    drawGridMap();
+    // drawGridMap();
 
 	// 注册键盘监听事件，在里面初始化_kbListner
     registerListener();
@@ -112,7 +111,7 @@ void TetrisGameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, coco
 }
 
 
-// 绘制格子线框
+// 绘制格子线框（弃用）
 void TetrisGameScene::drawGridMap()
 {
     auto visibleSize = Director::getInstance()->getVisibleSize();

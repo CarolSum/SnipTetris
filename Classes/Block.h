@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "cocos2d.h"
+USING_NS_CC;
 
 enum DIRECTION { LEFT = -1, DOWN = 0, RIGHT = 1 };
 enum COLOR { RED = 0, PINK = 1, YELLOW = 2, ORANGE = 3, BLUE = 4, GREEN = 5, SKYBLUE = 6 };
@@ -24,7 +25,36 @@ struct Block
     cocos2d::Sprite *sprite = cocos2d::Sprite::create(); // 游戏对象
 };
 
-const float BLOCK_SIZE = 25.0f;
+const int COLOR_SIZE = 7;
+
+// 不同颜色的块
+class BlockFramePool
+{
+private:
+	BlockFramePool()
+	{
+		char colorFile[20] = { 0, };
+		for (unsigned int i = 0; i < COLOR_SIZE; i++)
+		{
+			sprintf_s(colorFile, "c%d.png", i);
+			_pool[i] = SpriteFrameCache::getInstance()->getSpriteFrameByName(colorFile);
+		}
+	}
+
+public:
+	static BlockFramePool* getInstance()
+	{
+		static BlockFramePool p;
+		return &p;
+	}
+
+	SpriteFrame *getBlockFrame(const int& color) const { return _pool[color]; }
+
+private:
+	SpriteFrame * _pool[COLOR_SIZE];
+};
+
+const float BLOCK_SIZE = 30.0f;
 const float BLOCK_HALF = BLOCK_SIZE / 2;
 
 const int MAX_COL = 20;

@@ -2,8 +2,9 @@
 
 #include <array>
 #include <memory>
-#include "cocos2d.h"
 #include "Block.h"
+#include "cocos2d.h"
+USING_NS_CC;
 
 using std::shared_ptr;
 using std::make_shared;
@@ -15,10 +16,14 @@ class Tetromino
 public:
 //	Tetromino(const std::shared_ptr<TetrominoGrid>& grid) : _grid(grid) {}
 	Tetromino() = default;
+	const shared_ptr<Block> *getBlocks() const { return _blocks; }
 	float getAngle() const { return _angle; }
+	float setAngle(float angle) { _angle = angle; }
+	virtual COLOR getColor() const = 0;
+	virtual const int(*getShape())[2] = 0;
+	virtual const int(*getRotation())[2] = 0;
 protected:
-//	shared_ptr<TetrominoGrid> _grid;
-	shared_ptr<Block>  _blocks[4];
+	shared_ptr<Block> _blocks[4];
 	float _angle = 0;
 };
 
@@ -29,8 +34,26 @@ _T()/* : Tetromino(grid) */\
 	{ \
 		_blocks[i] = make_shared<Block>(); \
 		_blocks[i]->color = _T::DEFAULT_COLOR; \
+		_blocks[i]->sprite->setSpriteFrame(BlockFramePool::getInstance()->getBlockFrame(_T::DEFAULT_COLOR)); \
+		_blocks[i]->sprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT); \
 	} \
 }
+
+#define TETROMINO_GET_COLOR(_T) \
+COLOR getColor() const { return _T::DEFAULT_COLOR; }
+
+#define TETROMINO_GET_SHAPE(_T) \
+const int (*getShape())[2] { return _T::shape; }
+
+#define TETROMINO_GET_ROTATION(_T) \
+const int (*getRotation())[2] { return _T::rotationVector2; }
+
+#define TETROMINO_IMPLEMENT(_T) \
+TETROMINO_CONSTRUCTOR(_T) \
+TETROMINO_GET_COLOR(_T) \
+TETROMINO_GET_SHAPE(_T) \
+TETROMINO_GET_ROTATION(_T)
+
 
 // http://tetris.wikia.com/wiki/SRS
 // rotationVector2 指旋转90°后的位移向量
@@ -46,7 +69,7 @@ public:
 	static const int shape[4][2];
 	static const int rotationVector2[4][2];
 
-	TETROMINO_CONSTRUCTOR(TetrominoI)
+	TETROMINO_IMPLEMENT(TetrominoI)
 };
 
 class TetrominoJ : public Tetromino
@@ -56,7 +79,7 @@ public:
 	static const int shape[4][2];
 	static const int rotationVector2[4][2];
 
-	TETROMINO_CONSTRUCTOR(TetrominoJ)
+	TETROMINO_IMPLEMENT(TetrominoJ)
 };
 
 class TetrominoL : public Tetromino
@@ -66,7 +89,7 @@ public:
 	static const int shape[4][2];
 	static const int rotationVector2[4][2];
 
-	TETROMINO_CONSTRUCTOR(TetrominoL)
+	TETROMINO_IMPLEMENT(TetrominoL)
 };
 
 class TetrominoO : public Tetromino
@@ -76,7 +99,7 @@ public:
 	static const int shape[4][2];
 	static const int rotationVector2[4][2];
 
-	TETROMINO_CONSTRUCTOR(TetrominoO)
+	TETROMINO_IMPLEMENT(TetrominoO)
 };
 
 class TetrominoS : public Tetromino
@@ -86,7 +109,7 @@ public:
 	static const int shape[4][2];
 	static const int rotationVector2[4][2];
 
-	TETROMINO_CONSTRUCTOR(TetrominoS)
+	TETROMINO_IMPLEMENT(TetrominoS)
 };
 
 class TetrominoT : public Tetromino
@@ -96,7 +119,7 @@ public:
 	static const int shape[4][2];
 	static const int rotationVector2[4][2];
 
-	TETROMINO_CONSTRUCTOR(TetrominoT)
+	TETROMINO_IMPLEMENT(TetrominoT)
 };
 
 class TetrominoZ : public Tetromino
@@ -106,5 +129,5 @@ public:
 	static const int shape[4][2];
 	static const int rotationVector2[4][2];
 
-	TETROMINO_CONSTRUCTOR(TetrominoZ)
+	TETROMINO_IMPLEMENT(TetrominoZ)
 };

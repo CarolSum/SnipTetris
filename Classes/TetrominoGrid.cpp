@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <memory>
 #include "TetrominoGrid.h"
-#include "Tetromino.h"
 #include "Util.h"
 
 using std::all_of;
@@ -12,12 +11,29 @@ using std::shared_ptr;
 
 TetrominoGrid::TetrominoGrid()
 {
-	if (!ALL_OF_GRID([](const shared_ptr<Block>& p) { return p == nullptr; }))
-		for (int i = 0; i < MAX_ROW; i++)
-			for (int j = 0; j < MAX_COL; j++)
-				_grid[i][j] = nullptr;
-	shared_ptr<Tetromino> curTetro = nullptr;
-	shared_ptr<Tetromino> nextTetro = getRandomTetromino();
+	//if (!ALL_OF_GRID([](const shared_ptr<Block>& p) { return p == nullptr; }))
+	// ≤‚ ‘”√
+	for (int i = 0; i < MAX_COL; i++)
+		for (int j = 0; j < MAX_ROW; j++)
+		{
+			auto& block = _grid[i][j];
+			if (!block)
+			{
+				block = make_shared<Block>();
+				block->color = COLOR(UTIL::randomRagne(0, 6));
+				block->sprite->setSpriteFrame(BlockFramePool::getInstance()->getBlockFrame(block->color));
+				block->sprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+			}
+		}
+				
+	curTetro = nullptr;
+	nextTetro = getRandomTetromino();
+}
+
+shared_ptr<Block> TetrominoGrid::getBlock(int cx, int ry)
+{
+	assert((cx >= 0 && cx < MAX_COL) && (ry >= 0 && ry < MAX_ROW));
+	return _grid[cx][ry];
 }
 
 bool TetrominoGrid::fall()

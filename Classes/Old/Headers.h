@@ -5,8 +5,6 @@
 USING_NS_CC;
 
 #include <iostream>
-using namespace std;
-
 #include <memory>
 #include <array>
 #include <list>
@@ -15,6 +13,4 @@ using namespace std;
 #include <algorithm>
 #include <functional>
 
-#include "Util.h"
-#include "Block.h"
-#include "GameOver.h"
+using namespace std;

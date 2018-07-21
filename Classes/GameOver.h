@@ -2,6 +2,9 @@
 
 #include <string>
 
+#include "cocos2d.h"
+USING_NS_CC;
+
 using std::string;
 
 class GameOver
