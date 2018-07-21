@@ -1,7 +1,6 @@
-﻿#include "Headers.h"
-#include "TetrisParticleManager.h"
+﻿#include "ParticleManager.h"
 
-TetrisParticleManager::TetrisParticleManager(Node *scene)
+ParticleManager::ParticleManager(Node *node)
 {
     _particles = make_unique<list<ParticleSystemQuad *>>();
     _particlePool = make_unique< list<ParticleSystemQuad * >>();
@@ -11,12 +10,12 @@ TetrisParticleManager::TetrisParticleManager(Node *scene)
         auto particle = ParticleSystemQuad::create("TetrisRes/particle.plist");
         particle->setTexture(Director::getInstance()->getTextureCache()->addImage("TetrisRes/particle_texture.png"));
         particle->stopSystem();
-        scene->addChild(particle);
+		node->addChild(particle);
         _particlePool->emplace_back(particle);
     }
 }
 
-void TetrisParticleManager::add(const Vec2 & p)
+void ParticleManager::add(const Vec2 & p)
 {
     auto particle = *_particlePool->begin();
     _particlePool->pop_front();
@@ -25,7 +24,7 @@ void TetrisParticleManager::add(const Vec2 & p)
     _particles->emplace_back(particle);
 }
 
-void TetrisParticleManager::show()
+void ParticleManager::show()
 {
     for (const auto &particle : *_particles)
         particle->resetSystem();

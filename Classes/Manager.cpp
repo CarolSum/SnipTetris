@@ -5,13 +5,16 @@
 #include <algorithm>
 
 using std::make_shared;
-using std::shared_ptr;
+using std::make_unique;
 using std::min;
 using std::max;
 
 Manager::Manager(TetrisGameScene *scene) : _scene(scene)
 {
 	_grid = make_shared<TetrominoGrid>();
+	_gridnode = Node::create();
+	_particleManager = make_unique<ParticleManager>(_gridnode);
+
 	initGridNode();
 	displayGridLine();
 
@@ -29,18 +32,37 @@ const shared_ptr<TetrominoGrid>& Manager::getGrid()
 
 void Manager::update()
 {
-	bool successToFall = _grid->fall();
-	if (successToFall)
+	if (getGrid()->fall())
 		displayGrid();
-	else if (isGameOver())
+	else if (getGrid()->isGameOver())
 		_scene->gameOver();
 	else
+	{
+		do {
+			// 找一下是否有需要删除的行
+			int deletedRowIndex = getGrid()->getBottomFullRowIndex();
+			// 没有就跳出去
+			if (deletedRowIndex < 0) break;
+			// 展示消除效果
+			for (int i = 0; i < MAX_COL; i++)
+			{
+				auto& block = getGrid()->getBlockOrNull(i, deletedRowIndex);
+				if (!block) continue;
+				_particleManager->add(block->sprite->getPosition());
+				// 从界面上移除block图片
+				block->sprite->removeFromParentAndCleanup(true);
+			}
+			_particleManager->show();
+			// 从Grid二维数组中删除该行的blocks
+			getGrid()->deleteRowAndFall(deletedRowIndex);
+		} while (1);
+
 		nextRound();
+	}
 }
 
 void Manager::initGridNode()
 {
-	_gridnode = Node::create();
 	_gridnode->setVisible(true);
 	_gridnode->setContentSize(Size(MAX_COL * BLOCK_SIZE, MAX_ROW * BLOCK_SIZE));
 	_gridnode->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
@@ -152,19 +174,6 @@ void Manager::nextRound()
 	// 下面两个顺序不能乱，先取走原有子节点才能为此子节点添加新父节点
 	displayNextTetromino();
 	displayGrid();
-}
-
-bool Manager::isGameOver()
-{
-	for (int i = 0; i < MAX_COL; i++)
-	{
-		for (int j = MAX_ALIVE_ROW; j < MAX_ROW; j++)
-		{
-			if (getGrid()->isOccupied(i, j))
-				return true;
-		}
-	}
-	return false;
 }
 
 void Manager::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event * event)

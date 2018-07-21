@@ -3,8 +3,10 @@
 #include <memory>
 #include "TetrominoGrid.h"
 #include "Block.h"
+#include "ParticleManager.h"
 
 using std::shared_ptr;
+using std::unique_ptr;
 
 class TetrisGameScene;
 
@@ -21,6 +23,7 @@ private:
 	STATE _state = STATE::CONTINUE;
 	TetrisGameScene *_scene = nullptr;
 	Node *_gridnode = nullptr;
+	unique_ptr<ParticleManager> _particleManager = nullptr;
 
 private:
 	void initGridNode();
@@ -29,7 +32,6 @@ private:
 	void displayGrid();
 
 	void nextRound();
-	bool isGameOver();
 
 	// 默认窗口大小（分辨率）不能改变
 	const Size visibleSize = Director::getInstance()->getVisibleSize();

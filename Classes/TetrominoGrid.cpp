@@ -253,11 +253,69 @@ bool TetrominoGrid::hardDrop()
 
 bool TetrominoGrid::hasFullRow()
 {
+	for (int j = 0; j < MAX_ALIVE_ROW; j++)
+	{
+		bool isFull = true;
+		for (int i = 0; i < MAX_COL; i++)
+		{
+			if (!isOccupied(i, j))
+			{
+				isFull = false;
+				break;
+			}
+		}
+		if (isFull)
+			return true;
+	}
 	return false;
+}
+
+int TetrominoGrid::getBottomFullRowIndex()
+{
+	for (int j = 0; j < MAX_ALIVE_ROW; j++)
+	{
+		bool isFull = true;
+		for (int i = 0; i < MAX_COL; i++)
+		{
+			if (!isOccupied(i, j))
+			{
+				isFull = false;
+				break;
+			}
+		}
+		if (isFull)
+			return j;
+	}
+	return -1;
+}
+
+void TetrominoGrid::deleteRowAndFall(int row)
+{
+	// 删除整行
+	for (int i = 0; i < MAX_COL; i++)
+	{
+		_grid[i][row] = nullptr;
+	}
+	// 该行以上的全部往下移一行
+	for (int i = 0; i < MAX_COL; i++)
+	{
+		for (int j = row + 1; j < MAX_ALIVE_ROW; j++)
+		{
+			swap(_grid[i][j - 1], _grid[i][j]);
+		}
+	}
 }
 
 bool TetrominoGrid::isGameOver()
 {
+	for (int i = 0; i < MAX_COL; i++)
+	{
+		for (int j = MAX_ALIVE_ROW; j < MAX_ROW; j++)
+		{
+			if (isOccupied(i, j))
+				return true;
+		}
+	}
 	return false;
 }
 

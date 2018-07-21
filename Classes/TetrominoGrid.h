@@ -33,6 +33,9 @@ public:
 
 	bool hasFullRow();
 	bool isGameOver();
+	// 返回值表示行索引，返回-1表示无满行，没有执行删除
+	int getBottomFullRowIndex();
+	void deleteRowAndFall(int row);
 
 	void checkState();
 

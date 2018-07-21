@@ -1,10 +1,19 @@
 ﻿#pragma once
-#include "Headers.h"
 
-class TetrisParticleManager
+#include <memory>
+#include <list>
+
+#include "cocos2d.h"
+USING_NS_CC;
+
+using std::unique_ptr;
+using std::make_unique;
+using std::list;
+
+class ParticleManager
 {
 public:
-    TetrisParticleManager(Node *scene);
+    ParticleManager(Node *node);
   
 public:
     void add(const Vec2& p);
