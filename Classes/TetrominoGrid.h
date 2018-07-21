@@ -10,10 +10,6 @@ class Tetromino;
 
 typedef shared_ptr<Block> grid_t[MAX_COL][MAX_ROW];
 
-#define ALL_OF_GRID(callback) (all_of((shared_ptr<Block>*)_grid, (shared_ptr<Block>*)_grid + MAX_COL * MAX_ROW, (callback)))
-
-// enum GRID_STATE { ALIVE, FULL_LINE, };
-
 class TetrominoGrid
 {
 public:
@@ -31,7 +27,6 @@ public:
 	bool rotate();
 	bool hardDrop();
 
-	bool hasFullRow();
 	bool isGameOver();
 	// 返回值表示行索引，返回-1表示无满行，没有执行删除
 	int getBottomFullRowIndex();

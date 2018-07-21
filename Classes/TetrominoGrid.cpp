@@ -11,41 +11,30 @@ using std::shared_ptr;
 
 TetrominoGrid::TetrominoGrid()
 {
-	assert(ALL_OF_GRID([](const shared_ptr<Block>& p) { return p == nullptr; }));
-	// 测试用
-	//for (int i = 0; i < MAX_COL; i++)
-	//	for (int j = 0; j < MAX_ROW; j++)
-	//	{
-	//		auto& block = _grid[i][j];
-	//		if (!block)
-	//		{
-	//			block = make_shared<Block>();
-	//			block->color = COLOR(UTIL::randomRagne(0, 6));
-	//			block->sprite->setSpriteFrame(BlockFramePool::getInstance()->getBlockFrame(block->color));
-	//			block->sprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-	//		}
-	//	}
-
 	curTetro = nullptr;
 	nextTetro = getRandomTetromino();
 }
 
+// 获取格子指针或者为空
 shared_ptr<Block> TetrominoGrid::getBlockOrNull(int cx, int ry)
 {
 	assert((cx >= 0 && cx < MAX_COL) && (ry >= 0 && ry < MAX_ROW));
 	return _grid[cx][ry];
 }
 
+// 判断某坐标是否已有格子占用
 bool TetrominoGrid::isOccupied(int cx, int ry)
 {
 	return getBlockOrNull(cx, ry) != nullptr;
 }
 
+// 判断某坐标能否放置格子
 bool TetrominoGrid::isAccessible(int cx, int ry)
 {
 	return (cx >= 0 && cx < MAX_COL) && (ry >= 0 && ry < MAX_ROW) && !isOccupied(cx, ry);
 }
 
+// 一般用于一个四格骨牌落地时，执行下一轮
 void TetrominoGrid::nextRound()
 {
 	curTetro = nextTetro;
@@ -53,6 +42,7 @@ void TetrominoGrid::nextRound()
 	putTetro(curTetro);
 }
 
+// 放置一个四格骨牌到Grid顶部，一般用于新的一轮开始
 void TetrominoGrid::putTetro(const shared_ptr<Tetromino>& tetro)
 {
 	int maxIndex = INT_MIN, minIndex = INT_MAX;
@@ -124,6 +114,7 @@ bool TetrominoGrid::canFall()
 	return result;
 }
 
+// 可以的话，下落一格
 bool TetrominoGrid::fall()
 {
 	if (!canFall()) return false;
@@ -161,6 +152,7 @@ bool TetrominoGrid::canMove(DIRECTION dir)
 	return result;
 }
 
+// 可以的话，左或右移动一格
 bool TetrominoGrid::move(DIRECTION dir)
 {
 	if (!canMove(dir)) return false;
@@ -251,25 +243,6 @@ bool TetrominoGrid::hardDrop()
 	return fallCount > 0;
 }
 
-bool TetrominoGrid::hasFullRow()
-{
-	for (int j = 0; j < MAX_ALIVE_ROW; j++)
-	{
-		bool isFull = true;
-		for (int i = 0; i < MAX_COL; i++)
-		{
-			if (!isOccupied(i, j))
-			{
-				isFull = false;
-				break;
-			}
-		}
-		if (isFull)
-			return true;
-	}
-	return false;
-}
-
 int TetrominoGrid::getBottomFullRowIndex()
 {
 	for (int j = 0; j < MAX_ALIVE_ROW; j++)
@@ -328,7 +301,7 @@ shared_ptr<Tetromino> TetrominoGrid::getRandomTetromino()
 {
 	shared_ptr<Tetromino> newTetromino;
 	if (_grid != nullptr)
-		switch (UTIL::randomRagne(0, 6) & 0)
+		switch (UTIL::randomRagne(0, 6))
 		{
 		case 0: newTetromino = make_shared<TetrominoI>(); break;
 		case 1: newTetromino = make_shared<TetrominoJ>(); break;

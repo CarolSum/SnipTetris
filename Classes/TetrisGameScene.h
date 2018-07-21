@@ -26,7 +26,7 @@ private: /* cocos2d: private member function */
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event) override;
 
 private: /* private member function */
-    void drawGridMap();
+    void reset();
     void registerListener();
 
 public: /* public member function */
@@ -39,4 +39,3 @@ private: /* private member */
     shared_ptr<Manager> _manager;
     unique_ptr<GameOver> _gameOver;
 };
-

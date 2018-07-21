@@ -85,11 +85,11 @@ void TetrisGameScene::menuCloseCallback(Ref* pSender)
 #endif
 }
 
-void TetrisGameScene::setActivation(bool b)
+void TetrisGameScene::setActivation(bool _active)
 {
-	if (b) this->schedule(schedule_selector(TetrisGameScene::update), 0.4f);
+	if (_active) this->schedule(schedule_selector(TetrisGameScene::update), 0.4f);
 	else this->unschedule(schedule_selector(TetrisGameScene::update));
-	this->_kbListner->setEnabled(b);
+	this->_kbListner->setEnabled(_active);
 }
 
 void TetrisGameScene::update(float dt)
@@ -99,11 +99,6 @@ void TetrisGameScene::update(float dt)
 
 void TetrisGameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event * event)
 {
-	//if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
-	//{
-	//	if (!_eventDispatcher->isEnabled()) return;
-	//	setActivation(false);
-	//}
 	_manager->onKeyPressed(keyCode, event);
 }
 
@@ -112,6 +107,13 @@ void TetrisGameScene::registerListener()
     _kbListner = EventListenerKeyboard::create();
     _kbListner->onKeyPressed = CC_CALLBACK_2(TetrisGameScene::onKeyPressed, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_kbListner, this);
+}
+
+void TetrisGameScene::reset()
+{
+	_gameOver = make_unique<GameOver>(this);
+	_manager = make_shared<Manager>(this);
+	this->setActivation(true);
 }
 
 void TetrisGameScene::gameOver()
@@ -129,7 +131,7 @@ void TetrisGameScene::gameOver()
             {
                 _isGameOver = false;
                 _gameOver->show(false);
-                // _manager->request(RQ_RESTART);
+				this->reset();
                 _eventDispatcher->removeEventListener(keyboard_listner);
                 return;
             }

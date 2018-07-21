@@ -23,6 +23,8 @@ Manager::Manager(TetrisGameScene *scene) : _scene(scene)
 
 Manager::~Manager()
 {
+	_gridnode->removeAllChildrenWithCleanup(true);
+	_gridnode->removeFromParent();
 }
 
 const shared_ptr<TetrominoGrid>& Manager::getGrid()
@@ -30,6 +32,7 @@ const shared_ptr<TetrominoGrid>& Manager::getGrid()
 	return _grid;
 }
 
+// 每隔400ms被调用一次，一般为骨牌下落
 void Manager::update()
 {
 	if (getGrid()->fall())
@@ -71,28 +74,29 @@ void Manager::initGridNode()
 	_scene->addChild(_gridnode);
 }
 
+// 绘制格子线
 void Manager::displayGridLine()
 {
 	for (int i = 0; i <= MAX_ROW; i++)
 	{
-		auto lineY = i * BLOCK_SIZE + gridBottom;
+		auto lineY = i * BLOCK_SIZE;
 		auto draw = DrawNode::create();
 		draw->drawLine(
-			Vec2(gridLeft, lineY), // 横线起点
-			Vec2(gridRight, lineY), // 横线终点
+			Vec2(0, lineY), // 横线起点
+			Vec2(gridSize.width, lineY), // 横线终点
 			Color4F(Color3B::WHITE, 0.2));
-		_scene->addChild(draw);
+		_gridnode->addChild(draw);
 	}
 
 	for (int i = 0; i <= MAX_COL; i++)
 	{
-		auto lineX = i * BLOCK_SIZE + gridLeft;
+		auto lineX = i * BLOCK_SIZE;
 		auto draw = DrawNode::create();
 		draw->drawLine(
-			Vec2(lineX, gridBottom), // 竖线起点
-			Vec2(lineX, gridTop), //竖线终点
+			Vec2(lineX, 0), // 竖线起点
+			Vec2(lineX, gridSize.height), //竖线终点
 			Color4F(Color3B::WHITE, 0.2));
-		_scene->addChild(draw);
+		_gridnode->addChild(draw);
 	}
 }
 
@@ -149,6 +153,7 @@ void Manager::displayNextTetromino()
 	_scene->addChild(nextTetroAxis, 0, "nextTetroNode");
 }
 
+// 显示（刷新）Grid图
 void Manager::displayGrid()
 {
 	for (int i = 0; i < MAX_COL; i++)
