@@ -23,6 +23,8 @@ public:
 	void nextRound();
 	void putTetro(const shared_ptr<Tetromino>& tetro);
 
+	bool canFall();
+	bool canMove(DIRECTION dir);
 	bool fall();
 	bool move(DIRECTION dir);
 	bool rotate();

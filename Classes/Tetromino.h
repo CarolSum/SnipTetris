@@ -35,7 +35,6 @@ _T()/* : Tetromino(grid) */\
 		_blocks[i] = make_shared<Block>(); \
 		_blocks[i]->color = _T::DEFAULT_COLOR; \
 		_blocks[i]->sprite->setSpriteFrame(BlockFramePool::getInstance()->getBlockFrame(_T::DEFAULT_COLOR)); \
-		_blocks[i]->sprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT); \
 	} \
 }
 

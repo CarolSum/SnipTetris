@@ -15,9 +15,10 @@ Manager::Manager(TetrisGameScene *scene) : _scene(scene)
 	initGridNode();
 	displayGridLine();
 
-	_grid->nextRound();
+	nextRound();
+	/*_grid->nextRound();
 	displayNextTetromino();
-	displayGrid();
+	displayGrid();*/
 }
 
 Manager::~Manager()
@@ -31,8 +32,13 @@ const shared_ptr<TetrominoGrid>& Manager::getGrid()
 
 void Manager::update(float dt)
 {
-	_grid->fall();
-	displayGrid();
+	bool successToFall = _grid->fall();
+	if (successToFall)
+		displayGrid();
+	else if (isGameOver())
+		_scene->gameOver();
+	else
+		nextRound();
 }
 
 void Manager::initGridNode()
@@ -73,6 +79,13 @@ void Manager::displayGridLine()
 
 void Manager::displayNextTetromino()
 {
+	// 先清理上一次的提示图
+	if (auto _node = _scene->getChildByName("nextTetroNode"))
+	{
+		_node->removeAllChildrenWithCleanup(false);
+		_scene->removeChild(_node, false);
+	}
+
 	auto nextTetroAxis = Node::create();
 	nextTetroAxis->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 	nextTetroAxis->setVisible(true);
@@ -113,12 +126,13 @@ void Manager::displayNextTetromino()
 	// 位置完美
 	nextTetroAxis->setPosition(Vec2(rightMidX + xOffset * scale, rightMidY + yOffset * scale));
 
-	_scene->addChild(nextTetroAxis);
+	_scene->addChild(nextTetroAxis, 0, "nextTetroNode");
 }
 
 void Manager::displayGrid()
 {
 	// _gridnode->removeAllChildren();
+	// _gridnode->removeAllChildrenWithCleanup(false);
 	for (int i = 0; i < MAX_COL; i++)
 	{
 		for (int j = 0; j < MAX_ROW; j++)
@@ -134,6 +148,26 @@ void Manager::displayGrid()
 				_gridnode->addChild(block->sprite);
 		}
 	}
+}
+
+void Manager::nextRound()
+{
+	getGrid()->nextRound();
+	displayNextTetromino();
+	displayGrid();
+}
+
+bool Manager::isGameOver()
+{
+	for (int i = 0; i < MAX_COL; i++)
+	{
+		for (int j = MAX_ALIVE_ROW; j < MAX_ROW; j++)
+		{
+			if (getGrid()->isOccupied(i, j))
+				return true;
+		}
+	}
+	return false;
 }
 
 void Manager::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event * event)

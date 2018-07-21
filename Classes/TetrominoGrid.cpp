@@ -88,7 +88,7 @@ for (int i = 0; i < 4; i++) \
 	_grid[cx][ry] = nullptr; \
 }
 
-#define PUT_BACK_TETRO() \
+#define PUT_TETRO_BY_COORD() \
 for (int i = 0; i < 4; i++) \
 { \
 	auto& block = curTetro->getBlocks()[i]; \
@@ -96,57 +96,78 @@ for (int i = 0; i < 4; i++) \
 	_grid[cx][ry] = block; \
 }
 
-bool TetrominoGrid::fall()
+#define PUT_BACK_TETRO PUT_TETRO_BY_COORD
+
+bool TetrominoGrid::canFall()
 {
+	// 默认可以下落
+	bool result = true;
 	// 先从Grid上拿走四格骨牌的格子
 	TAKE_UP_TETRO();
-
-	// 检查可行性
+	// 检查是否存在不能踏足的格子
 	for (int i = 0; i < 4; i++)
 	{
 		SET_VAR_CX_RY(i, cx, ry);
 		if (!isAccessible(cx, ry - 1))
-			return false;
+		{
+			result = false;
+			break;
+		}
 	}
+	// 再放回去
+	PUT_BACK_TETRO();
+	// 返回结果
+	return result;
+}
 
-	// 执行
+bool TetrominoGrid::fall()
+{
+	if (!canFall()) return false;
+	TAKE_UP_TETRO();
 	for (int i = 0; i < 4; i++)
 	{
 		int& ry = curTetroCoord[i][1];
 		ry -= 1;
 	}
-
-	// 再放回去
-	PUT_BACK_TETRO();
-
+	PUT_TETRO_BY_COORD();
 	return true;
 }
 
-bool TetrominoGrid::move(DIRECTION dir)
+bool TetrominoGrid::canMove(DIRECTION dir)
 {
+	// 默认可以移动
+	bool result = true;
+	// 不同方向移动index偏移不同
 	int offset = (dir == DIRECTION::LEFT) ? -1 : 1;
-
 	// 先从Grid上拿走四格骨牌的格子
 	TAKE_UP_TETRO();
-
-	// 检查可行性
+	// 检查是否存在不能踏足的格子
 	for (int i = 0; i < 4; i++)
 	{
 		SET_VAR_CX_RY(i, cx, ry);
 		if (!isAccessible(cx + offset, ry))
-			return false;
+		{
+			result = false;
+			break;
+		}
 	}
+	// 再放回去
+	PUT_BACK_TETRO();
+	// 返回结果
+	return result;
+}
 
-	// 执行
+bool TetrominoGrid::move(DIRECTION dir)
+{
+	if (!canMove(dir)) return false;
+	TAKE_UP_TETRO();
+	int offset = (dir == DIRECTION::LEFT) ? -1 : 1;
 	for (int i = 0; i < 4; i++)
 	{
 		int& cx = curTetroCoord[i][0];
 		cx += offset;
 	}
-
-	// 再放回去
-	PUT_BACK_TETRO();
-
+	PUT_TETRO_BY_COORD();
 	return true;
 }
 

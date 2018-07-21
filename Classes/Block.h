@@ -23,6 +23,17 @@ struct Block
 {
 	COLOR color = COLOR::RED;
     cocos2d::Sprite *sprite = cocos2d::Sprite::create(); // 游戏对象
+
+	Block()
+	{
+		sprite->retain();
+		sprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+	}
+
+	~Block()
+	{
+		sprite->release();
+	}
 };
 
 const int COLOR_SIZE = 7;

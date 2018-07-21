@@ -28,6 +28,9 @@ private:
 	void displayNextTetromino();
 	void displayGrid();
 
+	void nextRound();
+	bool isGameOver();
+
 	// 默认窗口大小（分辨率）不能改变
 	const Size visibleSize = Director::getInstance()->getVisibleSize();
 	const Size gridSize = Size(BLOCK_SIZE * MAX_COL, BLOCK_SIZE * MAX_ROW);
