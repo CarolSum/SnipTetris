@@ -13,12 +13,12 @@ Manager::Manager(TetrisGameScene *scene) : _scene(scene)
 {
 	_grid = make_shared<TetrominoGrid>();
 	initGridNode();
-
 	displayGridLine();
+
+	_grid->nextRound();
 	displayNextTetromino();
 	displayGrid();
 }
-
 
 Manager::~Manager()
 {
@@ -32,6 +32,7 @@ const shared_ptr<TetrominoGrid>& Manager::getGrid()
 void Manager::update(float dt)
 {
 	_grid->fall();
+	displayGrid();
 }
 
 void Manager::initGridNode()
@@ -87,9 +88,6 @@ void Manager::displayNextTetromino()
 	{
 		auto& block = tetro->getBlocks()[i];
 
-		//auto blockSpriteFrame = BlockFramePool::getInstance()->getBlockFrame(tetro->getColor());
-		//block->sprite->setSpriteFrame(blockSpriteFrame);
-
 		auto rect = block->sprite->getSpriteFrame()->getRect();
 		block->sprite->setPositionX(tetro->getShape()[i][0] * rect.size.width);
 		block->sprite->setPositionY(tetro->getShape()[i][1] * rect.size.height);
@@ -120,19 +118,20 @@ void Manager::displayNextTetromino()
 
 void Manager::displayGrid()
 {
+	// _gridnode->removeAllChildren();
 	for (int i = 0; i < MAX_COL; i++)
 	{
 		for (int j = 0; j < MAX_ROW; j++)
 		{
-			auto& block = getGrid()->getBlock(i, j);
+			auto& block = getGrid()->getBlockOrNull(i, j);
 			if (!block) continue;
 
 			auto rect = block->sprite->getSpriteFrame()->getRect();
 			block->sprite->setPositionX(i * BLOCK_SIZE);
 			block->sprite->setPositionY(j * BLOCK_SIZE);
 			block->sprite->setContentSize(Size(BLOCK_SIZE, BLOCK_SIZE));
-
-			_gridnode->addChild(block->sprite);
+			if (block->sprite->getParent() != _gridnode)
+				_gridnode->addChild(block->sprite);
 		}
 	}
 }
@@ -143,30 +142,35 @@ void Manager::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Eve
 	{
 	case EventKeyboard::KeyCode::KEY_SPACE:
 		_grid->hardDrop();
+		displayGrid();
 		break;
 
 	case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
 	case EventKeyboard::KeyCode::KEY_CAPITAL_A:
 	case EventKeyboard::KeyCode::KEY_A:
 		_grid->move(DIRECTION::LEFT);
+		displayGrid();
 		break;
 
 	case EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
 	case EventKeyboard::KeyCode::KEY_CAPITAL_D:
 	case EventKeyboard::KeyCode::KEY_D:
 		_grid->move(DIRECTION::RIGHT);
+		displayGrid();
 		break;
 
 	case EventKeyboard::KeyCode::KEY_UP_ARROW:
 	case EventKeyboard::KeyCode::KEY_CAPITAL_W:
 	case EventKeyboard::KeyCode::KEY_W:
 		_grid->rotate();
+		displayGrid();
 		break;
 
 	case EventKeyboard::KeyCode::KEY_DOWN_ARROW:
 	case EventKeyboard::KeyCode::KEY_CAPITAL_S:
 	case EventKeyboard::KeyCode::KEY_S:
 		_grid->fall();
+		displayGrid();
 		break;
 	}
 }

@@ -11,29 +11,56 @@ using std::shared_ptr;
 
 TetrominoGrid::TetrominoGrid()
 {
-	//if (!ALL_OF_GRID([](const shared_ptr<Block>& p) { return p == nullptr; }))
+	assert(ALL_OF_GRID([](const shared_ptr<Block>& p) { return p == nullptr; }));
 	// ≤‚ ‘”√
-	for (int i = 0; i < MAX_COL; i++)
-		for (int j = 0; j < MAX_ROW; j++)
-		{
-			auto& block = _grid[i][j];
-			if (!block)
-			{
-				block = make_shared<Block>();
-				block->color = COLOR(UTIL::randomRagne(0, 6));
-				block->sprite->setSpriteFrame(BlockFramePool::getInstance()->getBlockFrame(block->color));
-				block->sprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-			}
-		}
-				
+	//for (int i = 0; i < MAX_COL; i++)
+	//	for (int j = 0; j < MAX_ROW; j++)
+	//	{
+	//		auto& block = _grid[i][j];
+	//		if (!block)
+	//		{
+	//			block = make_shared<Block>();
+	//			block->color = COLOR(UTIL::randomRagne(0, 6));
+	//			block->sprite->setSpriteFrame(BlockFramePool::getInstance()->getBlockFrame(block->color));
+	//			block->sprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+	//		}
+	//	}
+
 	curTetro = nullptr;
 	nextTetro = getRandomTetromino();
 }
 
-shared_ptr<Block> TetrominoGrid::getBlock(int cx, int ry)
+shared_ptr<Block> TetrominoGrid::getBlockOrNull(int cx, int ry)
 {
 	assert((cx >= 0 && cx < MAX_COL) && (ry >= 0 && ry < MAX_ROW));
 	return _grid[cx][ry];
+}
+
+void TetrominoGrid::nextRound()
+{
+	curTetro = nextTetro;
+	nextTetro = getRandomTetromino();
+	putTetro(curTetro);
+}
+
+void TetrominoGrid::putTetro(const shared_ptr<Tetromino>& tetro)
+{
+	int maxIndex = INT_MIN, minIndex = INT_MAX;
+	for (int i = 0; i < 4; i++)
+	{
+		maxIndex = max(tetro->getShape()[i][0], maxIndex);
+		minIndex = min(tetro->getShape()[i][0], minIndex);
+	}
+
+	int colStart = (MAX_COL - (maxIndex - minIndex + 1)) / 2;
+	int rowStart = MAX_ALIVE_ROW;
+	for (int i = 0; i < 4; i++)
+	{
+		auto& block = tetro->getBlocks()[i];
+		auto cx = colStart + tetro->getShape()[i][0];
+		auto ry = rowStart + tetro->getShape()[i][1];
+		_grid[cx][ry] = block;
+	}
 }
 
 bool TetrominoGrid::fall()

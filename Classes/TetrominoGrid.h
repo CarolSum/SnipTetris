@@ -19,6 +19,10 @@ class TetrominoGrid
 public:
 	TetrominoGrid();
 	const grid_t& getGrid() const { return _grid; }
+
+	void nextRound();
+	void putTetro(const shared_ptr<Tetromino>& tetro);
+
 	bool fall();
 	bool move(DIRECTION dir);
 	bool rotate();
@@ -30,7 +34,7 @@ public:
 	void checkState();
 
 	shared_ptr<Tetromino> getRandomTetromino();
-	shared_ptr<Block> getBlock(int cx, int ry);
+	shared_ptr<Block> getBlockOrNull(int cx, int ry);
 
 	shared_ptr<Tetromino> curTetro = nullptr;
 	shared_ptr<Tetromino> nextTetro = nullptr;
