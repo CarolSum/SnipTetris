@@ -18,7 +18,8 @@ Manager::Manager(GameScene *scene) : _scene(scene)
 	initGridNode();
 	displayGridLine();
 
-	nextRound();
+	nextRoundP1();
+	nextRoundP2();
 }
 
 Manager::~Manager()
@@ -35,12 +36,30 @@ const shared_ptr<TetrominoGrid>& Manager::getGrid()
 // 每隔400ms被调用一次，一般为骨牌下落
 void Manager::update()
 {
-	if (getGrid()->fall())
-		displayGrid();
-	else if (getGrid()->isGameOver())
-		_scene->gameOver();
+	bool result1 = false, result2 = false;
+	if (getGrid()->canFallP1())
+	{
+		result1 = getGrid()->fallP1();
+		result2 = getGrid()->fallP2();
+	}
 	else
 	{
+		result2 = getGrid()->fallP2();
+		result1 = getGrid()->fallP1();
+	}
+	if (result1 || result2)
+		displayGrid();
+	if (!result1 || !result2)
+	{
+		if (!result1 && getGrid()->checkGameOverBeforeNextRoundP1()) {
+			_scene->gameOver();
+			return;
+		}
+		if (!result2 && getGrid()->checkGameOverBeforeNextRoundP2()) {
+			_scene->gameOver();
+			return;
+		}
+
 		do {
 			// 找一下是否有需要删除的行
 			int deletedRowIndex = getGrid()->getBottomFullRowIndex();
@@ -60,7 +79,8 @@ void Manager::update()
 			getGrid()->deleteRowAndFall(deletedRowIndex);
 		} while (1);
 
-		nextRound();
+		if (!result1) nextRoundP1();
+		if (!result2) nextRoundP2();
 	}
 }
 
@@ -100,25 +120,25 @@ void Manager::displayGridLine()
 	}
 }
 
-// 显示提示骨牌图
-void Manager::displayNextTetromino()
+// 显示P1的提示骨牌图
+void Manager::displayNextTetrominoP1()
 {
 	// 先清理上一次的提示图
-	if (auto _node = _scene->getChildByName("nextTetroNode"))
+	if (auto _node = _scene->getChildByName("nextTetroNodeP1"))
 	{
 		_node->removeAllChildrenWithCleanup(true);
 		_scene->removeChild(_node);
 	}
 
-	auto nextTetroAxis = Node::create();
-	nextTetroAxis->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-	nextTetroAxis->setVisible(true);
-	
-	// 网格右边空位的中心点
-	auto rightMidX = (visibleSize.width - gridRight) / 2 + gridRight;
-	auto rightMidY = visibleSize.height / 2;
+	auto nextTetroAxisP1 = Node::create();
+	nextTetroAxisP1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+	nextTetroAxisP1->setVisible(true);
 
-	auto& tetro = _grid->nextTetro;
+	// 网格左边空位的中心点
+	auto leftMidX = gridLeft / 2;
+	auto leftMidY = visibleSize.height / 2;
+
+	auto& tetro = _grid->nextTetroP1;
 
 	float maxX = FLT_MIN, minX = FLT_MAX, maxY = FLT_MIN, minY = FLT_MAX;
 	for (int i = 0; i < 4; i++)
@@ -128,9 +148,8 @@ void Manager::displayNextTetromino()
 		auto rect = block->sprite->getSpriteFrame()->getRect();
 		block->sprite->setPositionX(tetro->getShape()[i][0] * rect.size.width);
 		block->sprite->setPositionY(tetro->getShape()[i][1] * rect.size.height);
-		block->sprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 
-		nextTetroAxis->addChild(block->sprite);
+		nextTetroAxisP1->addChild(block->sprite);
 
 		maxX = max(block->sprite->getBoundingBox().getMaxX(), maxX);
 		maxY = max(block->sprite->getBoundingBox().getMaxY(), maxY);
@@ -146,12 +165,65 @@ void Manager::displayNextTetromino()
 	float yOffset = -(nextTetroAxisHeight / 2);
 
 	float scale = 0.5;
-	nextTetroAxis->setScale(scale);
+	nextTetroAxisP1->setScale(scale);
 	// 位置完美
-	nextTetroAxis->setPosition(Vec2(rightMidX + xOffset * scale, rightMidY + yOffset * scale));
+	nextTetroAxisP1->setPosition(Vec2(leftMidX + xOffset * scale, leftMidY + yOffset * scale));
 
-	_scene->addChild(nextTetroAxis, 0, "nextTetroNode");
+	_scene->addChild(nextTetroAxisP1, 0, "nextTetroNodeP1");
 }
+
+// 显示P2的提示骨牌图
+void Manager::displayNextTetrominoP2()
+{
+	// 先清理上一次的提示图
+	if (auto _node = _scene->getChildByName("nextTetroNodeP2"))
+	{
+		_node->removeAllChildrenWithCleanup(true);
+		_scene->removeChild(_node);
+	}
+
+	auto nextTetroAxisP2 = Node::create();
+	nextTetroAxisP2->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+	nextTetroAxisP2->setVisible(true);
+
+	// 网格右边空位的中心点
+	auto rightMidX = (visibleSize.width - gridRight) / 2 + gridRight;
+	auto rightMidY = visibleSize.height / 2;
+
+	auto& tetro = _grid->nextTetroP2;
+
+	float maxX = FLT_MIN, minX = FLT_MAX, maxY = FLT_MIN, minY = FLT_MAX;
+	for (int i = 0; i < 4; i++)
+	{
+		auto& block = tetro->getBlocks()[i];
+
+		auto rect = block->sprite->getSpriteFrame()->getRect();
+		block->sprite->setPositionX(tetro->getShape()[i][0] * rect.size.width);
+		block->sprite->setPositionY(tetro->getShape()[i][1] * rect.size.height);
+
+		nextTetroAxisP2->addChild(block->sprite);
+
+		maxX = max(block->sprite->getBoundingBox().getMaxX(), maxX);
+		maxY = max(block->sprite->getBoundingBox().getMaxY(), maxY);
+		minX = min(block->sprite->getBoundingBox().getMinX(), minX);
+		minY = min(block->sprite->getBoundingBox().getMinY(), minY);
+	}
+
+	// 下一个四格骨牌提示框大小
+	float nextTetroAxisWidth = maxX - minX;
+	float nextTetroAxisHeight = maxY - minY;
+	// nextTetroAxis位置的偏移量
+	float xOffset = -(nextTetroAxisWidth / 2);
+	float yOffset = -(nextTetroAxisHeight / 2);
+
+	float scale = 0.5;
+	nextTetroAxisP2->setScale(scale);
+	// 位置完美
+	nextTetroAxisP2->setPosition(Vec2(rightMidX + xOffset * scale, rightMidY + yOffset * scale));
+
+	_scene->addChild(nextTetroAxisP2, 0, "nextTetroNodeP2");
+}
+
 
 // 显示（刷新）Grid图
 void Manager::displayGrid()
@@ -173,11 +245,19 @@ void Manager::displayGrid()
 	}
 }
 
-void Manager::nextRound()
+void Manager::nextRoundP1()
 {
-	getGrid()->nextRound();
+	getGrid()->nextRoundP1();
 	// 下面两个顺序不能乱，先取走原有子节点才能为此子节点添加新父节点
-	displayNextTetromino();
+	displayNextTetrominoP1();
+	displayGrid();
+}
+
+void Manager::nextRoundP2()
+{
+	getGrid()->nextRoundP2();
+	// 下面两个顺序不能乱，先取走原有子节点才能为此子节点添加新父节点
+	displayNextTetrominoP2();
 	displayGrid();
 }
 
@@ -185,37 +265,70 @@ void Manager::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Eve
 {
 	switch (keyCode)
 	{
+	// 下面是P1操作按键(wsad)
 	case EventKeyboard::KeyCode::KEY_SPACE:
-		_grid->hardDrop();
+		_grid->hardDropP1();
 		displayGrid();
-		update(); // 这个加快流畅度
+		// update(); // 这个加快流畅度
 		break;
 
 	case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
 	case EventKeyboard::KeyCode::KEY_CAPITAL_A:
 	case EventKeyboard::KeyCode::KEY_A:
-		_grid->move(DIRECTION::LEFT);
+		_grid->moveP1(DIRECTION::LEFT);
 		displayGrid();
 		break;
 
 	case EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
 	case EventKeyboard::KeyCode::KEY_CAPITAL_D:
 	case EventKeyboard::KeyCode::KEY_D:
-		_grid->move(DIRECTION::RIGHT);
+		_grid->moveP1(DIRECTION::RIGHT);
 		displayGrid();
 		break;
 
 	case EventKeyboard::KeyCode::KEY_UP_ARROW:
 	case EventKeyboard::KeyCode::KEY_CAPITAL_W:
 	case EventKeyboard::KeyCode::KEY_W:
-		_grid->rotate();
+		_grid->rotateP1();
 		displayGrid();
 		break;
 
 	case EventKeyboard::KeyCode::KEY_DOWN_ARROW:
 	case EventKeyboard::KeyCode::KEY_CAPITAL_S:
 	case EventKeyboard::KeyCode::KEY_S:
-		_grid->fall();
+		_grid->fallP1();
+		displayGrid();
+		break;
+
+
+	// 下面是P2操作按键(ikjl)
+	case EventKeyboard::KeyCode::KEY_ENTER:
+		_grid->hardDropP2();
+		displayGrid();
+		// update(); // 这个加快流畅度
+		break;
+
+	case EventKeyboard::KeyCode::KEY_CAPITAL_J:
+	case EventKeyboard::KeyCode::KEY_J:
+		_grid->moveP2(DIRECTION::LEFT);
+		displayGrid();
+		break;
+
+	case EventKeyboard::KeyCode::KEY_CAPITAL_L:
+	case EventKeyboard::KeyCode::KEY_L:
+		_grid->moveP2(DIRECTION::RIGHT);
+		displayGrid();
+		break;
+
+	case EventKeyboard::KeyCode::KEY_CAPITAL_I:
+	case EventKeyboard::KeyCode::KEY_I:
+		_grid->rotateP2();
+		displayGrid();
+		break;
+
+	case EventKeyboard::KeyCode::KEY_CAPITAL_K:
+	case EventKeyboard::KeyCode::KEY_K:
+		_grid->fallP2();
 		displayGrid();
 		break;
 	}

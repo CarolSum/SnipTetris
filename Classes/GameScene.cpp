@@ -38,7 +38,7 @@ bool GameScene::init()
     Director::getInstance()->setClearColor(Color4F(0, 0, 0, 0));
 
 	// 设置标题字样SnipTetris
-	auto titleLabel = Label::create("Tetris", "fonts/Fredoka.ttf", 70);
+	auto titleLabel = Label::create("SnipTetris", "fonts/Fredoka.ttf", 70);
 	titleLabel->setPosition(Vec2(visibleSize.width / 2, visibleSize.height - titleLabel->getContentSize().height - 30));
 	this->addChild(titleLabel, 1);
 

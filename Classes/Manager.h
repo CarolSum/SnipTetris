@@ -20,7 +20,6 @@ public:
 	const shared_ptr<TetrominoGrid>& getGrid();
 private:
 	shared_ptr<TetrominoGrid> _grid = nullptr;
-	STATE _state = STATE::CONTINUE;
 	GameScene *_scene = nullptr;
 	Node *_gridnode = nullptr;
 	unique_ptr<ParticleManager> _particleManager = nullptr;
@@ -28,10 +27,11 @@ private:
 private:
 	void initGridNode();
 	void displayGridLine();
-	void displayNextTetromino();
+	void displayNextTetrominoP1();
+	void displayNextTetrominoP2();
 	void displayGrid();
-
-	void nextRound();
+	void nextRoundP1();
+	void nextRoundP2();
 
 	// 默认窗口大小（分辨率）不能改变
 	const Size visibleSize = Director::getInstance()->getVisibleSize();

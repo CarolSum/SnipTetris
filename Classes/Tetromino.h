@@ -14,7 +14,6 @@ class TetrominoGrid;
 class Tetromino
 {
 public:
-//	Tetromino(const std::shared_ptr<TetrominoGrid>& grid) : _grid(grid) {}
 	Tetromino() = default;
 	const shared_ptr<Block> *getBlocks() const { return _blocks; }
 	int getAngle() const { return _angle; }
@@ -28,7 +27,7 @@ protected:
 };
 
 #define TETROMINO_CONSTRUCTOR(_T) \
-_T()/* : Tetromino(grid) */\
+_T()\
 { \
 	for (int i = 0; i < 4; i++) \
 	{ \
