@@ -36,17 +36,8 @@ const shared_ptr<TetrominoGrid>& Manager::getGrid()
 // 每隔400ms被调用一次，一般为骨牌下落
 void Manager::update()
 {
-	bool result1 = false, result2 = false;
-	if (getGrid()->canFallP1())
-	{
-		result1 = getGrid()->fallP1();
-		result2 = getGrid()->fallP2();
-	}
-	else
-	{
-		result2 = getGrid()->fallP2();
-		result1 = getGrid()->fallP1();
-	}
+	bool result1 = getGrid()->fallP1();
+	bool result2 = getGrid()->fallP2();
 	if (result1 || result2)
 		displayGrid();
 	if (!result1 || !result2)
@@ -228,6 +219,8 @@ void Manager::displayNextTetrominoP2()
 // 显示（刷新）Grid图
 void Manager::displayGrid()
 {
+	auto overlap_blocks = getGrid()->getOverlapBlocks();
+	
 	for (int i = 0; i < MAX_COL; i++)
 	{
 		for (int j = 0; j < MAX_ROW; j++)
@@ -235,10 +228,37 @@ void Manager::displayGrid()
 			auto& block = getGrid()->getBlockOrNull(i, j);
 			if (!block) continue;
 
+			bool is_overlap = false;
+			Sprite* other_sprite = nullptr;
+
+			// 先看看是不是重叠的的block（重叠必有一个block占有Grid中位置）
+			for (auto p : overlap_blocks)
+			{
+				if (p.first == block)
+				{
+					is_overlap = true;
+					other_sprite = p.second->sprite;
+					break;
+				}
+				else if (p.second == block)
+				{
+					is_overlap = true;
+					other_sprite = p.first->sprite;
+					break;
+				}
+			}
+
 			auto rect = block->sprite->getSpriteFrame()->getRect();
-			block->sprite->setPositionX(i * BLOCK_SIZE);
-			block->sprite->setPositionY(j * BLOCK_SIZE);
+			block->sprite->setPosition(i * BLOCK_SIZE, j * BLOCK_SIZE);
 			block->sprite->setContentSize(Size(BLOCK_SIZE, BLOCK_SIZE));
+
+			if (is_overlap)
+			{
+				other_sprite->setPosition(block->sprite->getPosition());
+				BlendFunc cbl = { GL_ONE, GL_ONE };
+				other_sprite->setBlendFunc(cbl);
+			}
+			
 			if (block->sprite->getParent() != _gridnode)
 				_gridnode->addChild(block->sprite);
 		}

@@ -80,56 +80,6 @@ void TetrominoGrid::putTetro##P(const shared_ptr<Tetromino>& tetro) \
 IMPLEMENT_PUT_TETRO(P1, 1, 3);
 IMPLEMENT_PUT_TETRO(P2, 2, 3);
 
-//// 放置一个P1的新四格骨牌到Grid顶部，一般用于新的P1一轮开始
-//void TetrominoGrid::putTetroP1(const shared_ptr<Tetromino>& tetro)
-//{
-//	int maxIndex = INT_MIN, minIndex = INT_MAX;
-//	for (int i = 0; i < 4; i++)
-//	{
-//		maxIndex = max(tetro->getShape()[i][0], maxIndex);
-//		minIndex = min(tetro->getShape()[i][0], minIndex);
-//	}
-//
-//	int colStart = MAX_COL * 1 / 3 - (maxIndex - minIndex + 1) / 2;
-//	int rowStart = MAX_ALIVE_ROW;
-//	for (int i = 0; i < 4; i++)
-//	{
-//		auto& block = tetro->getBlocks()[i];
-//		auto cx = colStart + tetro->getShape()[i][0];
-//		auto ry = rowStart + tetro->getShape()[i][1];
-//		// 插入块
-//		_grid[cx][ry] = block;
-//		// 更新P1正在操作的四格骨牌的坐标数据
-//		curTetroCoordP1[i][0] = cx;
-//		curTetroCoordP1[i][1] = ry;
-//	}
-//}
-//
-//// 放置一个P2的新四格骨牌到Grid顶部，一般用于新的P2一轮开始
-//void TetrominoGrid::putTetroP2(const shared_ptr<Tetromino>& tetro)
-//{
-//	int maxIndex = INT_MIN, minIndex = INT_MAX;
-//	for (int i = 0; i < 4; i++)
-//	{
-//		maxIndex = max(tetro->getShape()[i][0], maxIndex);
-//		minIndex = min(tetro->getShape()[i][0], minIndex);
-//	}
-//
-//	int colStart = MAX_COL * 2 / 3 - (maxIndex - minIndex + 1) / 2;
-//	int rowStart = MAX_ALIVE_ROW;
-//	for (int i = 0; i < 4; i++)
-//	{
-//		auto& block = tetro->getBlocks()[i];
-//		auto cx = colStart + tetro->getShape()[i][0];
-//		auto ry = rowStart + tetro->getShape()[i][1];
-//		// 插入块
-//		_grid[cx][ry] = block;
-//		// 更新P2正在操作的四格骨牌的坐标数据
-//		curTetroCoordP2[i][0] = cx;
-//		curTetroCoordP2[i][1] = ry;
-//	}
-//}
-
 #define SET_VAR_CX_RY(P, i, cx, ry) \
 int cx = curTetroCoord##P[i][0]; \
 int ry = curTetroCoord##P[i][1];
@@ -155,13 +105,14 @@ for (int i = 0; i < 4; i++) \
 
 #define PUT_BACK_TETRO PUT_TETRO_BY_COORD
 
-#define IMPLEMENT_CAN_FALL(P) \
+#define IMPLEMENT_CAN_FALL(P, OtherP) \
 bool TetrominoGrid::canFall##P() \
 { \
 	/* 默认可以下落 */ \
 	bool result = true; \
-	/* 先从Grid上拿走四格骨牌的格子 */ \
+	/* 先从Grid上拿走所有玩家四格骨牌的格子 */ \
 	TAKE_UP_TETRO(P, i); \
+	TAKE_UP_TETRO(OtherP, i); \
 	/* 检查是否存在不能踏足的格子 */ \
 	for (int i = 0; i < 4; i++) \
 	{ \
@@ -172,42 +123,46 @@ bool TetrominoGrid::canFall##P() \
 			break; \
 		} \
 	} \
-	/* 再放回去 */ \
+	/* 再放回所有玩家的四格骨牌 */ \
 	PUT_BACK_TETRO(P, i); \
+	PUT_BACK_TETRO(OtherP, i); \
 	/* 返回结果 */ \
 	return result; \
 }
 
-IMPLEMENT_CAN_FALL(P1);
-IMPLEMENT_CAN_FALL(P2);
+IMPLEMENT_CAN_FALL(P1, P2);
+IMPLEMENT_CAN_FALL(P2, P1);
 
 // 可以的话，下落一格
-#define IMPLEMENT_FALL(P) \
+#define IMPLEMENT_FALL(P, OtherP) \
 bool TetrominoGrid::fall##P() \
 { \
 	if (!canFall##P()) return false; \
 	TAKE_UP_TETRO(P, i); \
+	TAKE_UP_TETRO(OtherP, i); \
 	for (int i = 0; i < 4; i++) \
 	{ \
 		int& ry = curTetroCoord##P[i][1]; \
 		ry -= 1; \
 	} \
 	PUT_TETRO_BY_COORD(P, i); \
+	PUT_BACK_TETRO(OtherP, i); \
 	return true; \
 }
 
-IMPLEMENT_FALL(P1);
-IMPLEMENT_FALL(P2);
+IMPLEMENT_FALL(P1, P2);
+IMPLEMENT_FALL(P2, P1);
 
-#define IMPLEMENT_CAN_MOVE(P) \
+#define IMPLEMENT_CAN_MOVE(P, OtherP) \
 bool TetrominoGrid::canMove##P(DIRECTION dir) \
 { \
 	/* 默认可以移动 */ \
 	bool result = true; \
 	/* 不同方向移动uindex偏移不同 */ \
 	int offset = (dir == DIRECTION::LEFT) ? -1 : 1; \
-	/* 先从Grid上拿走四格骨牌的格子 */ \
+	/* 先从Grid上拿走所有玩家四格骨牌的格子 */ \
 	TAKE_UP_TETRO(P, i); \
+	TAKE_UP_TETRO(OtherP, i); \
 	/* 检查是否存在不能踏足的格子 */ \
 	for (int i = 0; i < 4; i++) \
 	{ \
@@ -218,21 +173,23 @@ bool TetrominoGrid::canMove##P(DIRECTION dir) \
 			break; \
 		} \
 	} \
-	/* 再放回去 */ \
+	/* 再放回所有玩家的四格骨牌 */ \
 	PUT_BACK_TETRO(P, i); \
+	PUT_BACK_TETRO(OtherP, i); \
 	/* 返回结果 */ \
 	return result; \
 }
 
-IMPLEMENT_CAN_MOVE(P1);
-IMPLEMENT_CAN_MOVE(P2);
+IMPLEMENT_CAN_MOVE(P1, P2);
+IMPLEMENT_CAN_MOVE(P2, P1);
 
 // 可以的话，左或右移动一格
-#define IMPLEMENT_MOVE(P) \
+#define IMPLEMENT_MOVE(P, OtherP) \
 bool TetrominoGrid::move##P(DIRECTION dir) \
 { \
 	if (!canMove##P(dir)) return false; \
 	TAKE_UP_TETRO(P, i); \
+	TAKE_UP_TETRO(OtherP, i); \
 	int offset = (dir == DIRECTION::LEFT) ? -1 : 1; \
 	for (int i = 0; i < 4; i++) \
 	{ \
@@ -240,11 +197,12 @@ bool TetrominoGrid::move##P(DIRECTION dir) \
 		cx += offset; \
 	} \
 	PUT_TETRO_BY_COORD(P, i); \
+	PUT_BACK_TETRO(OtherP, i); \
 	return true; \
 }
 
-IMPLEMENT_MOVE(P1);
-IMPLEMENT_MOVE(P2);
+IMPLEMENT_MOVE(P1, P2);
+IMPLEMENT_MOVE(P2, P1);
 
 #define SET_CX_RY_AFTER_ROTATION(P, i, cx, ry, a, b) \
 do { \
@@ -273,13 +231,14 @@ do { \
 	} \
 } while (0);
 
-#define IMPLEMENT_CAN_ROTATE(P) \
+#define IMPLEMENT_CAN_ROTATE(P, OtherP) \
 bool TetrominoGrid::canRotate##P() \
 { \
 	/* 默认可以旋转 */ \
 	bool result = true; \
-	/* 先从Grid上拿走四格骨牌的格子 */ \
+	/* 先从Grid上拿走所有玩家四格骨牌的格子 */ \
 	TAKE_UP_TETRO(P, i); \
+	TAKE_UP_TETRO(OtherP, i); \
 	/* 检查是否存在不能踏足的格子 */ \
 	for (int i = 0; i < 4; i++) \
 	{ \
@@ -293,21 +252,23 @@ bool TetrominoGrid::canRotate##P() \
 			break; \
 		} \
 	} \
-	/* 再放回去 */ \
+	/* 再放回所有玩家的四格骨牌 */ \
 	PUT_BACK_TETRO(P, i); \
+	PUT_BACK_TETRO(OtherP, i); \
 	/* 返回结果 */ \
 	return result; \
 }
 
-IMPLEMENT_CAN_ROTATE(P1);
-IMPLEMENT_CAN_ROTATE(P2);
+IMPLEMENT_CAN_ROTATE(P1, P2);
+IMPLEMENT_CAN_ROTATE(P2, P1);
 
 // 可以的话，旋转九十度
-#define IMPLEMENT_ROTATE(P) \
+#define IMPLEMENT_ROTATE(P, OtherP) \
 bool TetrominoGrid::rotate##P() \
 { \
 	if (!canRotate##P()) return false; \
 	TAKE_UP_TETRO(P, i); \
+	TAKE_UP_TETRO(OtherP, i); \
 	for (int i = 0; i < 4; i++) \
 	{ \
 		SET_REF_CX_RY(P, i, cx, ry); \
@@ -316,11 +277,12 @@ bool TetrominoGrid::rotate##P() \
 	} \
 	curTetro##P->rotate(); \
 	PUT_TETRO_BY_COORD(P, i); \
+	PUT_BACK_TETRO(OtherP, i); \
 	return true; \
 }
 
-IMPLEMENT_ROTATE(P1);
-IMPLEMENT_ROTATE(P2);
+IMPLEMENT_ROTATE(P1, P2);
+IMPLEMENT_ROTATE(P2, P1);
 
 #define IMPLEMENT_HARD_DROP(P) \
 bool TetrominoGrid::hardDrop##P() \
@@ -384,6 +346,29 @@ int TetrominoGrid::getBottomFullRowIndex()
 			return j;
 	}
 	return -1;
+}
+
+// 获取所有重叠的格子 List { Pair{ P1's block, P2's block }, ... }
+list<pair<shared_ptr<Block>, shared_ptr<Block>>> TetrominoGrid::getOverlapBlocks()
+{
+	list<pair<shared_ptr<Block>, shared_ptr<Block>>> overlap_blocks;
+	// 对于每一个P1的block
+	for (int i = 0; i < 4; i++)
+	{
+		// 对于每一个P2的block
+		for (int j = 0; j < 4; j++)
+		{
+			SET_VAR_CX_RY(P1, i, p1_cx, p1_ry);
+			SET_VAR_CX_RY(P2, j, p2_cx, p2_ry);
+			if (p1_cx == p2_cx && p1_ry == p2_ry)
+			{
+				overlap_blocks.push_back(
+					make_pair(curTetroP1->getBlocks()[i], curTetroP2->getBlocks()[j])
+				);
+			}
+		}
+	}
+	return overlap_blocks;
 }
 
 void TetrominoGrid::deleteRowAndFall(int row, bool is_p1_running, bool is_p2_running)

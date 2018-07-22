@@ -1,10 +1,15 @@
 #pragma once
 
 #include <memory>
+#include <list>
+#include <utility>
 #include "Tetromino.h"
 #include "Block.h"
 
 using std::shared_ptr;
+using std::list;
+using std::pair;
+using std::make_pair;
 
 class Tetromino;
 
@@ -54,6 +59,7 @@ public:
 
 	shared_ptr<Tetromino> getRandomTetromino();
 	shared_ptr<Block> getBlockOrNull(int cx, int ry);
+	list<pair<shared_ptr<Block>, shared_ptr<Block>>> getOverlapBlocks();
 	bool isOccupied(int cx, int ry);
 	bool isAccessible(int cx, int ry);
 

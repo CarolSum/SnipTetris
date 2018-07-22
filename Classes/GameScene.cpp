@@ -38,7 +38,7 @@ bool GameScene::init()
     Director::getInstance()->setClearColor(Color4F(0, 0, 0, 0));
 
 	// 设置标题字样SnipTetris
-	auto titleLabel = Label::create("Two Player Tetris", "fonts/Fredoka.ttf", 70);
+	auto titleLabel = Label::create("SnipTetris", "fonts/Fredoka.ttf", 70);
 	titleLabel->setPosition(Vec2(visibleSize.width / 2, visibleSize.height - titleLabel->getContentSize().height - 30));
 	this->addChild(titleLabel, 1);
 
@@ -87,7 +87,7 @@ void GameScene::menuCloseCallback(Ref* pSender)
 
 void GameScene::setActivation(bool _active)
 {
-	if (_active) this->schedule(schedule_selector(GameScene::update), 0.4f);
+	if (_active) this->schedule(schedule_selector(GameScene::update), 4.0f);
 	else this->unschedule(schedule_selector(GameScene::update));
 	this->_kbListner->setEnabled(_active);
 }
