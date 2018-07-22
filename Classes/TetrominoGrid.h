@@ -47,6 +47,8 @@ public:
 	bool rotateP2();
 	bool hardDropP1();
 	bool hardDropP2();
+	bool snipP1();
+	bool snipP2();
 
 public:
 	bool isGameOver();

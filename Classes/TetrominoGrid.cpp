@@ -91,6 +91,7 @@ int& ry = curTetroCoord##P[i][1];
 #define TAKE_UP_TETRO(P, i) \
 for (int i = 0; i < 4; i++) \
 { \
+	if (curTetro##P->hasBeenCutOff(i)) continue; \
 	SET_VAR_CX_RY(P, i, cx, ry); \
 	_grid[cx][ry] = nullptr; \
 }
@@ -98,6 +99,7 @@ for (int i = 0; i < 4; i++) \
 #define PUT_TETRO_BY_COORD(P, i) \
 for (int i = 0; i < 4; i++) \
 { \
+	if (curTetro##P->hasBeenCutOff(i)) continue; \
 	auto& block = curTetro##P->getBlocks()[i]; \
 	SET_VAR_CX_RY(P, i, cx, ry); \
 	_grid[cx][ry] = block; \
@@ -116,6 +118,8 @@ bool TetrominoGrid::canFall##P() \
 	/* 检查是否存在不能踏足的格子 */ \
 	for (int i = 0; i < 4; i++) \
 	{ \
+		/* 忽略被裁剪掉了的block */ \
+		if (curTetro##P->hasBeenCutOff(i)) continue; \
 		SET_VAR_CX_RY(P, i, cx, ry); \
 		if (!isAccessible(cx, ry - 1)) \
 		{ \
@@ -166,6 +170,8 @@ bool TetrominoGrid::canMove##P(DIRECTION dir) \
 	/* 检查是否存在不能踏足的格子 */ \
 	for (int i = 0; i < 4; i++) \
 	{ \
+		/* 忽略被裁剪掉了的block */ \
+		if (curTetro##P->hasBeenCutOff(i)) continue; \
 		SET_VAR_CX_RY(P, i, cx, ry); \
 		if (!isAccessible(cx + offset, ry)) \
 		{ \
@@ -242,6 +248,8 @@ bool TetrominoGrid::canRotate##P() \
 	/* 检查是否存在不能踏足的格子 */ \
 	for (int i = 0; i < 4; i++) \
 	{ \
+		/* 忽略被裁剪掉了的block */ \
+		if (curTetro##P->hasBeenCutOff(i)) continue; \
 		/* cx, ry都是新临时变量 */ \
 		SET_VAR_CX_RY(P, i, cx, ry); \
 		/* { a, b } 定义参考 Tetromino.h */ \
@@ -296,9 +304,68 @@ bool TetrominoGrid::hardDrop##P() \
 IMPLEMENT_HARD_DROP(P1);
 IMPLEMENT_HARD_DROP(P2);
 
+
+bool TetrominoGrid::snipP1()
+{
+	int cut_count = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		if (curTetroP1->hasBeenCutOff(i)) continue;
+		for (int j = 0; j < 4; j++)
+		{
+			if (curTetroP2->hasBeenCutOff(j)) continue;
+			SET_VAR_CX_RY(P1, i, p1_cx, p1_ry);
+			SET_VAR_CX_RY(P2, j, p2_cx, p2_ry);
+			if (p1_cx == p2_cx && p1_ry == p2_ry)
+			{
+				if (curTetroP2->cutOff(j))
+				{
+					// 从Grid中移除
+					_grid[p2_cx][p2_ry] = nullptr;
+					// 放置剪切者
+					_grid[p1_cx][p1_ry] = curTetroP1->getBlocks()[i];
+					cut_count++;
+					break;
+				}
+			}
+		}
+	}
+	return cut_count > 0;
+}
+
+bool TetrominoGrid::snipP2()
+{
+	int cut_count = 0;
+	for (int j = 0; j < 4; j++)
+	{
+		if (curTetroP2->hasBeenCutOff(j)) continue;
+		for (int i = 0; i < 4; i++)
+		{
+			if (curTetroP1->hasBeenCutOff(i)) continue;
+			SET_VAR_CX_RY(P2, j, p2_cx, p2_ry);
+			SET_VAR_CX_RY(P1, i, p1_cx, p1_ry);
+			if (p1_cx == p2_cx && p1_ry == p2_ry)
+			{
+				if (curTetroP1->cutOff(i))
+				{
+					// 从Grid中移除
+					_grid[p1_cx][p1_ry] = nullptr;
+					// 放置剪切者
+					_grid[p2_cx][p2_ry] = curTetroP2->getBlocks()[i];
+					cut_count++;
+					break;
+				}
+			}
+		}
+	}
+	return cut_count > 0;
+}
+
 #define IMPLEMENT_CHECK_GAME_OVER_BEFORE_NEXT_ROUND(P, OtherP) \
 bool TetrominoGrid::checkGameOverBeforeNextRound##P() \
 { \
+	/* 先判断落地时是否属于重叠状态，是则游戏结束 */ \
+	if (!getOverlapBlocks().empty()) return true; \
 	/* 先拿开另一个碍事的骨牌 */ \
 	TAKE_UP_TETRO(OtherP, i); \
 	/* 判断*/ \
@@ -352,12 +419,17 @@ int TetrominoGrid::getBottomFullRowIndex()
 list<pair<shared_ptr<Block>, shared_ptr<Block>>> TetrominoGrid::getOverlapBlocks()
 {
 	list<pair<shared_ptr<Block>, shared_ptr<Block>>> overlap_blocks;
+	if (!curTetroP1 || !curTetroP2) return overlap_blocks;
 	// 对于每一个P1的block
 	for (int i = 0; i < 4; i++)
 	{
+		// 忽略P1中被裁剪掉了的block
+		if (curTetroP1->hasBeenCutOff(i)) continue;
 		// 对于每一个P2的block
 		for (int j = 0; j < 4; j++)
 		{
+			// 忽略P2中被裁剪掉了的block
+			if (curTetroP2->hasBeenCutOff(j)) continue;
 			SET_VAR_CX_RY(P1, i, p1_cx, p1_ry);
 			SET_VAR_CX_RY(P2, j, p2_cx, p2_ry);
 			if (p1_cx == p2_cx && p1_ry == p2_ry)

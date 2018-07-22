@@ -40,13 +40,18 @@ void Manager::update()
 	bool result2 = getGrid()->fallP2();
 	if (result1 || result2)
 		displayGrid();
-	if (!result1 || !result2)
+	checkAndCallNextWhenLanding(!result1, !result2);
+}
+
+void Manager::checkAndCallNextWhenLanding(bool p1_land, bool p2_land)
+{
+	if (p1_land || p2_land)
 	{
-		if (!result1 && getGrid()->checkGameOverBeforeNextRoundP1()) {
+		if (p1_land && getGrid()->checkGameOverBeforeNextRoundP1()) {
 			_scene->gameOver();
 			return;
 		}
-		if (!result2 && getGrid()->checkGameOverBeforeNextRoundP2()) {
+		if (p2_land && getGrid()->checkGameOverBeforeNextRoundP2()) {
 			_scene->gameOver();
 			return;
 		}
@@ -67,11 +72,11 @@ void Manager::update()
 			}
 			_particleManager->show();
 			// 从Grid二维数组中删除该行的blocks
-			getGrid()->deleteRowAndFall(deletedRowIndex, result1, result2);
+			getGrid()->deleteRowAndFall(deletedRowIndex, !p1_land, !p2_land);
 		} while (1);
 
-		if (!result1) nextRoundP1();
-		if (!result2) nextRoundP2();
+		if (p1_land) nextRoundP1();
+		if (p2_land) nextRoundP2();
 	}
 }
 
@@ -220,11 +225,56 @@ void Manager::displayNextTetrominoP2()
 void Manager::displayGrid()
 {
 	auto overlap_blocks = getGrid()->getOverlapBlocks();
+	bool isNotFirstRound = getGrid()->curTetroP1 && getGrid()->curTetroP2;
 	
+	///////////////////////////////////////////////
+	//   下面是被裁剪的不在Grid上的block的显示
+	///////////////////////////////////////////////
+	if (isNotFirstRound)
+	{
+		for (int k = 0; k < 4; k++)
+		{
+			if (getGrid()->curTetroP1->hasBeenCutOff(k))
+			{
+				// 在有被裁剪的格子的情况下
+				int p1_cx = getGrid()->curTetroCoordP1[k][0];
+				int p1_ry = getGrid()->curTetroCoordP1[k][1];
+				auto block = getGrid()->curTetroP1->getBlocks()[k];
+				// block->sprite->removeFromParentAndCleanup(true);
+				block->sprite->setOpacityModifyRGB(true);
+				block->sprite->setOpacity(255 * 2 / 5);
+				block->sprite->setPosition(p1_cx * BLOCK_SIZE, p1_ry * BLOCK_SIZE);
+				block->sprite->setContentSize(Size(BLOCK_SIZE, BLOCK_SIZE));
+				if (block->sprite->getParent() != _gridnode)
+					_gridnode->addChild(block->sprite);
+			}
+
+			if (getGrid()->curTetroP2->hasBeenCutOff(k))
+			{
+				// 在有被裁剪的格子的情况下
+				int p2_cx = getGrid()->curTetroCoordP2[k][0];
+				int p2_ry = getGrid()->curTetroCoordP2[k][1];
+				auto block = getGrid()->curTetroP2->getBlocks()[k];
+				// block->sprite->removeFromParentAndCleanup(true);
+				block->sprite->setOpacityModifyRGB(true);
+				block->sprite->setOpacity(255 * 2 / 5);
+				block->sprite->setPosition(p2_cx * BLOCK_SIZE, p2_ry * BLOCK_SIZE);
+				block->sprite->setContentSize(Size(BLOCK_SIZE, BLOCK_SIZE));
+				if (block->sprite->getParent() != _gridnode)
+					_gridnode->addChild(block->sprite);
+			}
+		}
+	}
+
+
+	//////////////////////////////////////////////////
+	//  下面是非裁剪的正常的位于Grid上的block的显示
+	//////////////////////////////////////////////////
 	for (int i = 0; i < MAX_COL; i++)
 	{
 		for (int j = 0; j < MAX_ROW; j++)
-		{
+		{	
+			
 			auto& block = getGrid()->getBlockOrNull(i, j);
 			if (!block) continue;
 
@@ -248,7 +298,6 @@ void Manager::displayGrid()
 				}
 			}
 
-			auto rect = block->sprite->getSpriteFrame()->getRect();
 			block->sprite->setPosition(i * BLOCK_SIZE, j * BLOCK_SIZE);
 			block->sprite->setContentSize(Size(BLOCK_SIZE, BLOCK_SIZE));
 
@@ -265,16 +314,28 @@ void Manager::displayGrid()
 	}
 }
 
+// P1落地
 void Manager::nextRoundP1()
 {
+	// 落地则消除被剪切block的显示
+	if (getGrid()->curTetroP1)
+		for (int k = 0; k < 4; k++)
+			if (getGrid()->curTetroP1->hasBeenCutOff(k))
+				getGrid()->curTetroP1->getBlocks()[k]->sprite->removeFromParentAndCleanup(true);
 	getGrid()->nextRoundP1();
 	// 下面两个顺序不能乱，先取走原有子节点才能为此子节点添加新父节点
 	displayNextTetrominoP1();
 	displayGrid();
 }
 
+// P2落地
 void Manager::nextRoundP2()
 {
+	// 落地则消除被剪切block的显示
+	if (getGrid()->curTetroP2)
+		for (int k = 0; k < 4; k++)
+			if (getGrid()->curTetroP2->hasBeenCutOff(k))
+				getGrid()->curTetroP2->getBlocks()[k]->sprite->removeFromParentAndCleanup(true);
 	getGrid()->nextRoundP2();
 	// 下面两个顺序不能乱，先取走原有子节点才能为此子节点添加新父节点
 	displayNextTetrominoP2();
@@ -289,6 +350,7 @@ void Manager::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Eve
 	case EventKeyboard::KeyCode::KEY_SPACE:
 		_grid->hardDropP1();
 		displayGrid();
+		checkAndCallNextWhenLanding(true, false);
 		break;
 
 	case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
@@ -319,11 +381,18 @@ void Manager::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Eve
 		displayGrid();
 		break;
 
+	case EventKeyboard::KeyCode::KEY_CAPITAL_X:
+	case EventKeyboard::KeyCode::KEY_X:
+		_grid->snipP1();
+		displayGrid();
+		break;
+
 
 	// 下面是P2操作按键(ikjl)
 	case EventKeyboard::KeyCode::KEY_ENTER:
 		_grid->hardDropP2();
 		displayGrid();
+		checkAndCallNextWhenLanding(false, true);
 		break;
 
 	case EventKeyboard::KeyCode::KEY_CAPITAL_J:
@@ -347,6 +416,12 @@ void Manager::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Eve
 	case EventKeyboard::KeyCode::KEY_CAPITAL_K:
 	case EventKeyboard::KeyCode::KEY_K:
 		_grid->fallP2();
+		displayGrid();
+		break;
+
+	case EventKeyboard::KeyCode::KEY_CAPITAL_M:
+	case EventKeyboard::KeyCode::KEY_M:
+		_grid->snipP2();
 		displayGrid();
 		break;
 	}

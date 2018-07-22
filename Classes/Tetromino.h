@@ -16,6 +16,20 @@ class Tetromino
 public:
 	Tetromino() = default;
 	const shared_ptr<Block> *getBlocks() const { return _blocks; }
+	bool hasBeenCutOff(int i) const { return _cut_off_tags[i]; }
+	bool cutOff(int i)
+	{
+		if (hasBeenCutOff(i)) return false;
+		_cut_off_tags[i] = true;
+		return true;
+	}
+	bool cutOff(const shared_ptr<Block>& p)
+	{
+		for (int i = 0; i < 4; i++)
+			if (p == _blocks[i])
+				return cutOff(i);
+		return false;
+	}
 	int getAngle() const { return _angle; }
 	void rotate() { _angle = (_angle + 90) % 360; }
 	virtual COLOR getColor() const = 0;
@@ -23,6 +37,7 @@ public:
 	virtual const int(*getRotation())[2] = 0;
 protected:
 	shared_ptr<Block> _blocks[4];
+	bool _cut_off_tags[4] = { false, false, false, false };
 	int _angle = 0;
 };
 

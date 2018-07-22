@@ -87,7 +87,7 @@ void GameScene::menuCloseCallback(Ref* pSender)
 
 void GameScene::setActivation(bool _active)
 {
-	if (_active) this->schedule(schedule_selector(GameScene::update), 4.0f);
+	if (_active) this->schedule(schedule_selector(GameScene::update), 0.4f);
 	else this->unschedule(schedule_selector(GameScene::update));
 	this->_kbListner->setEnabled(_active);
 }
