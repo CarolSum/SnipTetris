@@ -50,7 +50,7 @@ public:
 	bool checkGameOverBeforeNextRoundP2();
 	// 返回值表示行索引，返回-1表示无满行，没有执行删除
 	int getBottomFullRowIndex();
-	void deleteRowAndFall(int row);
+	void deleteRowAndFall(int row, bool is_p1_running, bool is_p2_running);
 
 	shared_ptr<Tetromino> getRandomTetromino();
 	shared_ptr<Block> getBlockOrNull(int cx, int ry);

@@ -386,8 +386,12 @@ int TetrominoGrid::getBottomFullRowIndex()
 	return -1;
 }
 
-void TetrominoGrid::deleteRowAndFall(int row)
+void TetrominoGrid::deleteRowAndFall(int row, bool is_p1_running, bool is_p2_running)
 {
+	if (is_p1_running)
+		TAKE_UP_TETRO(P1, i);
+	if (is_p2_running)
+		TAKE_UP_TETRO(P2, i);
 	// É¾³ýÕûÐÐ
 	for (int i = 0; i < MAX_COL; i++)
 	{
@@ -401,9 +405,11 @@ void TetrominoGrid::deleteRowAndFall(int row)
 			swap(_grid[i][j - 1], _grid[i][j]);
 		}
 	}
+	if (is_p1_running)
+		PUT_BACK_TETRO(P1, i);
+	if (is_p2_running)
+		PUT_BACK_TETRO(P2, i);
 }
-
-
 
 shared_ptr<Tetromino> TetrominoGrid::getRandomTetromino()
 {

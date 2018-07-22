@@ -95,6 +95,10 @@ void GameScene::setActivation(bool _active)
 void GameScene::update(float dt)
 {
 	_manager->update();
+	//static int count = 0;
+	//if (count == 0)
+	//	_manager->update();
+	//count = (count + 1) % 10;
 }
 
 void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event * event)

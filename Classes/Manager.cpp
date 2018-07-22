@@ -76,7 +76,7 @@ void Manager::update()
 			}
 			_particleManager->show();
 			// 从Grid二维数组中删除该行的blocks
-			getGrid()->deleteRowAndFall(deletedRowIndex);
+			getGrid()->deleteRowAndFall(deletedRowIndex, result1, result2);
 		} while (1);
 
 		if (!result1) nextRoundP1();
@@ -269,7 +269,6 @@ void Manager::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Eve
 	case EventKeyboard::KeyCode::KEY_SPACE:
 		_grid->hardDropP1();
 		displayGrid();
-		// update(); // 这个加快流畅度
 		break;
 
 	case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
@@ -305,7 +304,6 @@ void Manager::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Eve
 	case EventKeyboard::KeyCode::KEY_ENTER:
 		_grid->hardDropP2();
 		displayGrid();
-		// update(); // 这个加快流畅度
 		break;
 
 	case EventKeyboard::KeyCode::KEY_CAPITAL_J:
