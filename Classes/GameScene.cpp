@@ -38,7 +38,7 @@ bool GameScene::init()
     Director::getInstance()->setClearColor(Color4F(0, 0, 0, 0));
 
 	// 设置标题字样SnipTetris
-	auto titleLabel = Label::create("SnipTetris", "fonts/Fredoka.ttf", 70);
+	auto titleLabel = Label::create("Two Player Tetris", "fonts/Fredoka.ttf", 70);
 	titleLabel->setPosition(Vec2(visibleSize.width / 2, visibleSize.height - titleLabel->getContentSize().height - 30));
 	this->addChild(titleLabel, 1);
 
@@ -95,10 +95,6 @@ void GameScene::setActivation(bool _active)
 void GameScene::update(float dt)
 {
 	_manager->update();
-	//static int count = 0;
-	//if (count == 0)
-	//	_manager->update();
-	//count = (count + 1) % 10;
 }
 
 void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event * event)
